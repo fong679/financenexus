@@ -3,226 +3,197 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Finance Calculator — Smart Planning Tools</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<title>Nexus Finance — Calculator Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --primary: #4F46E5;
     --primary-light: #818CF8;
+    --primary-dim: rgba(79,70,229,0.15);
     --emerald: #10B981;
     --emerald-light: #6EE7B7;
     --slate: #0F172A;
     --slate-light: #1E293B;
     --border: #334155;
-    --muted: #64748B;
-    --text: #F1F5F9;
-    --text-muted: #94A3B8;
+    --muted: #94A3B8; /* Lightened for better readability */
+    --text: #F8FAFC;   /* Brighter white for main text */
     --surface: #1E293B;
     --surface-high: #263346;
     --accent: #F59E0B;
   }
-
-  /* Light Mode Overrides */
-  body.light-mode {
-    --slate: #F1F5F9;
-    --slate-light: #E2E8F0;
-    --border: #CBD5E1;
-    --muted: #64748B;
-    --text: #0F172A;
-    --text-muted: #475569;
-    --surface: #FFFFFF;
-    --surface-high: #F8FAFC;
-  }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
     background: var(--slate);
-    background-image: radial-gradient(ellipse at 20% 0%, #1a1f4e22 0%, transparent 60%),
-                      radial-gradient(ellipse at 80% 100%, #0d3b2622 0%, transparent 60%);
+    background-image: radial-gradient(ellipse at 20% 0%, #1a1f4e33 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 100%, #0d3b2633 0%, transparent 60%);
     color: var(--text);
     font-family: 'DM Sans', sans-serif;
+    font-size: 16px; /* Base size increase */
+    line-height: 1.5;
     min-height: 100vh;
-    transition: background-color 0.3s, color 0.3s;
   }
-
-  body.light-mode {
-    background-image: radial-gradient(ellipse at 20% 0%, #4f46e511 0%, transparent 60%),
-                      radial-gradient(ellipse at 80% 100%, #10b98111 0%, transparent 60%);
-  }
-
   /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: var(--slate); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
   /* Top Bar */
   .topbar {
     position: sticky; top: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px; height: 60px;
-    background: rgba(30,41,59,0.85);
+    padding: 0 24px; height: 70px; /* Taller header */
+    background: rgba(15, 23, 42, 0.9);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
-  body.light-mode .topbar { background: rgba(255, 255, 255, 0.8); }
-
-  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .topbar-brand { display: flex; align-items: center; gap: 14px; }
   .brand-icon {
-    width: 34px; height: 34px; border-radius: 8px;
+    width: 40px; height: 40px; border-radius: 10px;
     background: linear-gradient(135deg, var(--primary), var(--primary-light));
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; /* Slightly larger for the calculator icon */
+    font-size: 20px;
   }
-  .brand-name { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
-  .brand-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-
-  /* Theme Toggle Button */
-  .theme-toggle {
-    background: var(--surface-high);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-right: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .theme-toggle:hover { background: var(--slate-light); }
-
+  .brand-name { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .brand-sub { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
   .live-badge {
-    padding: 4px 12px; border-radius: 99px; font-size: 11px;
+    padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 600;
     background: rgba(16,185,129,0.15); color: var(--emerald-light);
     border: 1px solid rgba(16,185,129,0.3); letter-spacing: 0.05em;
   }
 
   /* Layout */
-  .app-body { display: flex; min-height: calc(100vh - 60px); }
+  .app-body { display: flex; min-height: calc(100vh - 70px); }
 
   /* Sidebar */
   .sidebar {
-    width: 220px; flex-shrink: 0;
-    padding: 20px 12px;
+    width: 260px; flex-shrink: 0;
+    padding: 24px 16px;
     border-right: 1px solid var(--border);
-    background: rgba(30,41,59,0.5);
-    display: flex; flex-direction: column; gap: 4px;
+    background: rgba(30,41,59,0.3);
+    display: flex; flex-direction: column; gap: 8px;
   }
-  body.light-mode .sidebar { background: rgba(241, 245, 249, 0.5); }
-
   .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; border-radius: 10px;
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px; border-radius: 12px;
     cursor: pointer; border: none; width: 100%;
-    background: transparent; color: var(--text-muted);
-    text-align: left; transition: all 0.15s;
-    border-left: 2px solid transparent;
+    background: transparent; color: var(--muted);
+    text-align: left; transition: all 0.2s;
+    border-left: 3px solid transparent;
   }
-  .nav-item:hover { background: var(--surface-high); }
+  .nav-item:hover { background: var(--surface-high); color: var(--text); }
   .nav-item.active {
-    background: rgba(79,70,229,0.15);
-    border-left-color: var(--primary);
-    color: var(--text);
+    background: var(--primary-dim);
+    border-left-color: var(--primary-light);
+    color: white;
   }
   .nav-icon {
-    width: 32px; height: 32px; border-radius: 8px;
+    width: 36px; height: 36px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(51,65,85,0.5); font-size: 15px; flex-shrink: 0;
+    background: rgba(51,65,85,0.5); font-size: 18px; flex-shrink: 0;
   }
-  body.light-mode .nav-icon { background: rgba(203, 213, 225, 0.5); }
-  .nav-item.active .nav-icon { background: rgba(79,70,229,0.25); }
-  .nav-label { font-size: 13px; font-weight: 500; }
-  .nav-desc { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .nav-item.active .nav-icon { background: rgba(79,70,229,0.4); color: white; }
+  .nav-label { font-size: 15px; font-weight: 600; }
+  .nav-desc { font-size: 12px; opacity: 0.7; margin-top: 2px; font-weight: 400; }
 
   /* Content */
-  .content { flex: 1; padding: 28px; overflow-y: auto; }
-  .page-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-  .page-header-icon { font-size: 22px; }
-  .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
-  .page-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .content { flex: 1; padding: 32px; overflow-y: auto; max-width: 1600px; margin: 0 auto; width: 100%; }
+  .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+  .page-header-icon { font-size: 32px; }
+  .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+  .page-sub { font-size: 15px; color: var(--muted); margin-top: 4px; }
 
   /* Panels */
   .panel {
-    background: var(--surface); border-radius: 16px;
-    padding: 24px; border: 1px solid var(--border);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: var(--surface); border-radius: 18px;
+    padding: 28px; border: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   }
+  /* NEW: Analysis Panel Style */
+  .analysis-panel {
+    background: linear-gradient(145deg, rgba(79,70,229,0.08), rgba(30,41,59,0.4));
+    border: 1px solid rgba(129,140,248,0.2);
+    margin-bottom: 24px;
+  }
+  .analysis-text {
+    font-size: 15px; color: var(--text); line-height: 1.6;
+  }
+  .analysis-text strong { color: var(--primary-light); font-weight: 600; }
+  
   .section-title {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--text);
-    border-left: 3px solid var(--primary); padding-left: 10px;
-    margin: 0 0 18px;
+    border-left: 4px solid var(--primary); padding-left: 12px;
+    margin: 0 0 24px; display: flex; align-items: center; gap: 8px;
   }
 
   /* Grid layouts */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-  .grid-col { display: flex; flex-direction: column; gap: 16px; }
-  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-col { display: flex; flex-direction: column; gap: 24px; }
+  .calc-grid { display: grid; grid-template-columns: 400px 1fr; gap: 24px; }
 
   /* Stat Cards */
   .stat-card {
     background: var(--surface-high); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px 18px;
+    border-radius: 14px; padding: 18px 22px;
   }
   .stat-card.accent {
-    background: linear-gradient(135deg, rgba(79,70,229,0.15), rgba(129,140,248,0.07));
-    border-color: rgba(79,70,229,0.35);
+    background: linear-gradient(135deg, rgba(79,70,229,0.2), rgba(129,140,248,0.05));
+    border-color: rgba(129,140,248,0.3);
   }
-  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+  .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
   .stat-value {
-    font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 700;
-    color: var(--text); margin-top: 4px;
+    font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 700;
+    color: var(--text); margin-top: 8px; letter-spacing: -0.02em;
   }
-  .stat-card.accent .stat-value { color: var(--primary-light); font-size: 26px; }
-  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .stat-card.accent .stat-value { color: var(--primary-light); font-size: 36px; }
+  .stat-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
   /* Slider Input */
-  .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+  .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
   .input-row { display: flex; justify-content: space-between; align-items: center; }
-  .input-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .input-label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
   .input-number {
     background: var(--slate); border: 1px solid var(--border);
-    color: var(--text); border-radius: 6px; padding: 4px 8px;
-    width: 120px; text-align: right; font-size: 13px;
-    font-family: 'DM Mono', monospace; outline: none;
+    color: white; border-radius: 8px; padding: 8px 12px;
+    width: 140px; text-align: right; font-size: 16px; /* Larger input font */
+    font-family: 'DM Mono', monospace; outline: none; transition: border 0.2s;
   }
-  .input-number:focus { border-color: var(--primary); }
+  .input-number:focus { border-color: var(--primary-light); }
+  
   input[type=range] {
-    -webkit-appearance: none; width: 100%; height: 4px;
-    border-radius: 99px; background: var(--border); cursor: pointer;
+    -webkit-appearance: none; width: 100%; height: 6px;
+    border-radius: 99px; background: var(--surface-high); cursor: pointer;
+    margin-top: 4px;
   }
   input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 16px; height: 16px;
+    -webkit-appearance: none; width: 20px; height: 20px; /* Larger thumb */
     border-radius: 50%; background: var(--primary);
-    border: 2px solid var(--primary-light); cursor: pointer;
+    border: 3px solid var(--primary-light); cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
-  .range-hints { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
+  .range-hints { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 2px; }
 
   /* Toggle buttons */
   .toggle-group { display: flex; gap: 8px; margin-top: 8px; }
   .toggle-btn {
-    flex: 1; padding: 8px; border-radius: 8px; cursor: pointer;
+    flex: 1; padding: 10px; border-radius: 10px; cursor: pointer;
     border: 1px solid var(--border); background: transparent;
-    color: var(--muted); font-size: 13px; font-family: 'DM Sans', sans-serif;
+    color: var(--muted); font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500;
     transition: all 0.2s; text-transform: capitalize;
   }
   .toggle-btn.active {
-    border-color: var(--primary); background: rgba(79,70,229,0.15);
-    color: var(--primary-light);
+    border-color: var(--primary); background: rgba(79,70,229,0.2);
+    color: white;
   }
 
   /* Chart container */
-  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap { position: relative; width: 100%; margin-top: 10px; }
 
   /* Progress bar */
-  .progress-bar-wrap { background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; margin-top: 6px; }
+  .progress-bar-wrap { background: var(--surface-high); border-radius: 99px; height: 12px; overflow: hidden; margin-top: 10px; border: 1px solid var(--border); }
   .progress-bar-fill {
     height: 100%; border-radius: 99px;
     background: linear-gradient(90deg, var(--primary), var(--primary-light));
@@ -230,51 +201,47 @@
   }
 
   /* Table */
-  .amort-table-wrap { max-height: 200px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); margin-top: 16px; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'DM Mono', monospace; }
-  thead { position: sticky; top: 0; background: var(--surface-high); z-index: 10; }
-  th { padding: 8px 10px; color: var(--muted); text-align: right; border-bottom: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 11px; }
-  td { padding: 6px 10px; text-align: right; border-bottom: 1px solid rgba(51,65,85,0.1); }
+  .amort-table-wrap { max-height: 300px; overflow-y: auto; border-radius: 12px; border: 1px solid var(--border); margin-top: 24px; background: var(--surface-high); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'DM Mono', monospace; }
+  thead { position: sticky; top: 0; background: var(--slate); z-index: 10; }
+  th { padding: 12px 14px; color: var(--muted); text-align: right; border-bottom: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 12px; }
+  td { padding: 10px 14px; text-align: right; border-bottom: 1px solid rgba(51,65,85,0.3); color: #cbd5e1; }
   tr:last-child td { border-bottom: none; }
-  .col-month { color: var(--muted); }
   .col-principal { color: var(--primary-light); }
   .col-interest { color: var(--accent); }
-  .col-balance { color: var(--text-muted); }
-  .col-payment { color: var(--text); }
 
   /* Footer note */
   .footer-note {
-    margin-top: 28px; padding: 12px 16px; border-radius: 10px;
+    margin-top: 32px; padding: 16px 20px; border-radius: 12px;
     background: rgba(30,41,59,0.4); border: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-    font-size: 12px; color: var(--muted);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; color: var(--muted);
   }
-  body.light-mode .footer-note { background: rgba(226, 232, 240, 0.4); }
 
   /* Calculator pages */
-  .calc-page { display: none; }
+  .calc-page { display: none; animation: fadeIn 0.3s ease; }
   .calc-page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
   /* Milestone cards */
-  .milestone { background: var(--surface-high); border-radius: 10px; padding: 12px 14px; border: 1px solid var(--border); }
-  .milestone-year { font-size: 11px; color: var(--muted); }
-  .milestone-val { font-size: 16px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--emerald-light); }
-  .milestone-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .milestone { background: var(--surface-high); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
+  .milestone-year { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .milestone-val { font-size: 20px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--emerald-light); }
+  .milestone-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
   /* Responsive */
+  @media (max-width: 1024px) {
+    .calc-grid { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
   @media (max-width: 768px) {
     .app-body { flex-direction: column; }
-    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 8px; border-right: none; border-bottom: 1px solid var(--border); }
+    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 12px; border-right: none; border-bottom: 1px solid var(--border); gap: 12px; }
     .nav-desc { display: none; }
-    .content { padding: 16px; }
-    .calc-grid, .grid-2 { grid-template-columns: 1fr; }
-    .grid-3 { grid-template-columns: 1fr 1fr; }
-    .stat-card.accent .stat-value { font-size: 20px; }
-  }
-  @media (max-width: 480px) {
-    .grid-3 { grid-template-columns: 1fr; }
-    .topbar { padding: 0 14px; }
-    .brand-sub { display: none; }
+    .nav-item { padding: 10px; width: auto; flex-shrink: 0; }
+    .content { padding: 20px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .topbar { padding: 0 16px; height: 60px; }
   }
 </style>
 </head>
@@ -282,19 +249,13 @@
 
 <div class="topbar">
   <div class="topbar-brand">
-    <div class="brand-icon">🧮</div>
+    <div class="brand-icon">📊</div>
     <div>
-      <div class="brand-name">Finance Calculator</div>
-      <div class="brand-sub">Smart Financial Planning</div>
+      <div class="brand-name">Nexus Finance</div>
+      <div class="brand-sub">Financial Calculator Suite</div>
     </div>
   </div>
-  <div style="display: flex; align-items: center;">
-    <button class="theme-toggle" onclick="toggleTheme()">
-      <span id="theme-icon">🌙</span>
-      <span style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Theme</span>
-    </button>
-    <div class="live-badge">LIVE CALC</div>
-  </div>
+  <div class="live-badge">LIVE CALC</div>
 </div>
 
 <div class="app-body">
@@ -364,13 +325,18 @@
         </div>
 
         <div class="grid-col">
+          <div class="panel analysis-panel">
+            <div class="section-title">✨ Smart Analysis</div>
+            <div class="analysis-text" id="m-analysis"></div>
+          </div>
+
           <div class="panel">
             <div class="section-title">Monthly Breakdown</div>
-            <div class="stat-card accent" style="margin-bottom:12px">
+            <div class="stat-card accent" style="margin-bottom:16px">
               <div class="stat-label">Principal & Interest Payment</div>
               <div class="stat-value" id="m-out-pi">$2,484</div>
             </div>
-            <div class="grid-2" style="gap:10px">
+            <div class="grid-2" style="gap:16px">
               <div class="stat-card"><div class="stat-label">Total Monthly</div><div class="stat-value" id="m-out-total">$2,984</div></div>
               <div class="stat-card"><div class="stat-label">Loan Amount</div><div class="stat-value" id="m-out-loan">$360,000</div></div>
               <div class="stat-card"><div class="stat-label">Total Interest</div><div class="stat-value" id="m-out-interest">$534,407</div></div>
@@ -429,9 +395,14 @@
           </div>
         </div>
         <div class="grid-col">
+          <div class="panel analysis-panel">
+            <div class="section-title">✨ Smart Analysis</div>
+            <div class="analysis-text" id="v-analysis"></div>
+          </div>
+
           <div class="panel">
             <div class="section-title">Summary</div>
-            <div class="stat-card accent" style="margin-bottom:12px">
+            <div class="stat-card accent" style="margin-bottom:16px">
               <div class="stat-label">Monthly Payment</div>
               <div class="stat-value" id="v-out-monthly">$521</div>
             </div>
@@ -478,20 +449,26 @@
               <div class="range-hints"><span>6 mo</span><span>84 mo</span></div>
             </div>
           </div>
+
+          <div class="panel analysis-panel">
+            <div class="section-title">✨ Smart Analysis</div>
+            <div class="analysis-text" id="p-analysis"></div>
+          </div>
+
           <div class="panel">
             <div class="section-title">Results</div>
-            <div class="stat-card accent" style="margin-bottom:12px">
+            <div class="stat-card accent" style="margin-bottom:16px">
               <div class="stat-label">Monthly Payment</div>
               <div class="stat-value" id="p-out-monthly">$493</div>
             </div>
-            <div class="grid-2" style="gap:10px;margin-bottom:14px">
+            <div class="grid-2" style="gap:16px;margin-bottom:20px">
               <div class="stat-card"><div class="stat-label">Total Interest</div><div class="stat-value" id="p-out-interest">$2,741</div></div>
               <div class="stat-card"><div class="stat-label">Total Paid</div><div class="stat-value" id="p-out-total">$17,741</div></div>
             </div>
-            <div style="padding:14px;background:var(--slate);border-radius:10px;border:1px solid var(--border)">
-              <div style="color:var(--muted);font-size:12px;margin-bottom:6px">Interest as % of Loan</div>
+            <div style="padding:18px;background:var(--slate);border-radius:12px;border:1px solid var(--border)">
+              <div style="color:var(--muted);font-size:13px;margin-bottom:8px">Interest as % of Loan</div>
               <div class="progress-bar-wrap"><div class="progress-bar-fill" id="p-out-bar" style="width:18%"></div></div>
-              <div style="color:var(--primary-light);font-size:13px;margin-top:6px;font-family:'DM Mono',monospace" id="p-out-pct">18.3%</div>
+              <div style="color:var(--primary-light);font-size:14px;margin-top:8px;font-family:'DM Mono',monospace" id="p-out-pct">18.3%</div>
             </div>
           </div>
         </div>
@@ -549,17 +526,23 @@
               </div>
             </div>
           </div>
+          
+          <div class="panel analysis-panel">
+            <div class="section-title">✨ Smart Analysis</div>
+            <div class="analysis-text" id="s-analysis"></div>
+          </div>
+
           <div class="panel">
             <div class="section-title">Outcome</div>
-            <div class="stat-card accent" style="margin-bottom:12px">
+            <div class="stat-card accent" style="margin-bottom:16px">
               <div class="stat-label">Final Portfolio Value</div>
               <div class="stat-value" id="s-out-final">$589,020</div>
             </div>
-            <div class="grid-2" style="gap:10px;margin-bottom:14px">
+            <div class="grid-2" style="gap:16px;margin-bottom:16px">
               <div class="stat-card"><div class="stat-label">Total Invested</div><div class="stat-value" id="s-out-contrib">$130,000</div></div>
               <div class="stat-card"><div class="stat-label">Total Growth</div><div class="stat-value" id="s-out-growth" style="color:var(--emerald-light)">$459,020</div></div>
             </div>
-            <div id="s-milestones" class="grid-3" style="gap:10px"></div>
+            <div id="s-milestones" class="grid-3" style="gap:12px"></div>
           </div>
         </div>
         <div class="panel">
@@ -605,36 +588,6 @@ function buildAmortization(principal, annualRate, termMonths) {
   });
 }
 
-// ─── Theme Management ───────────────────────────────────────────────────────
-let gridColor = 'rgba(51,65,85,0.5)';
-let tickColor = '#64748B';
-
-function toggleTheme(isInitialLoad = false) {
-  const body = document.body;
-  if (!isInitialLoad) body.classList.toggle('light-mode');
-  
-  const isLight = body.classList.contains('light-mode');
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
-  $('theme-icon').textContent = isLight ? '☀️' : '🌙';
-
-  // Update Chart colors for the current theme
-  gridColor = isLight ? 'rgba(203, 213, 225, 0.8)' : 'rgba(51,65,85,0.5)';
-  tickColor = isLight ? '#475569' : '#64748B';
-  
-  baseChartOpts.scales.x.grid.color = gridColor;
-  baseChartOpts.scales.x.ticks.color = tickColor;
-  baseChartOpts.scales.y.grid.color = gridColor;
-  baseChartOpts.scales.y.ticks.color = tickColor;
-
-  // Redraw charts if this isn't the initial setup
-  if (!isInitialLoad) {
-    calcMortgage();
-    calcVehicle();
-    calcPersonal();
-    calcSavings();
-  }
-}
-
 // ─── Chart Registry ──────────────────────────────────────────────────────────
 const charts = {};
 function makeChart(id, config) {
@@ -642,15 +595,15 @@ function makeChart(id, config) {
   charts[id] = new Chart($(id), config);
 }
 
+const gridColor = 'rgba(51,65,85,0.5)';
+const tickColor = '#94A3B8';
 const baseChartOpts = {
   responsive: true,
-  plugins: { 
-    legend: { labels: { color: tickColor, font: { family: 'DM Sans' }, boxWidth: 12 } }, 
-    tooltip: { backgroundColor: '#1E293B', borderColor: '#334155', borderWidth: 1, titleColor: '#F1F5F9', bodyColor: '#94A3B8' } 
-  },
+  maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: tickColor, font: { family: 'DM Sans', size:12 }, boxWidth: 12 } }, tooltip: { backgroundColor: '#1E293B', borderColor: '#334155', borderWidth: 1, titleColor: '#F1F5F9', bodyColor: '#94A3B8', titleFont: {size:14}, bodyFont: {size:13} } },
   scales: {
-    x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'DM Mono', size: 11 } } },
-    y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'DM Mono', size: 11 } } }
+    x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'DM Mono', size: 12 } } },
+    y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'DM Mono', size: 12 } } }
   }
 };
 
@@ -677,6 +630,15 @@ function calcMortgage() {
   $('m-out-interest').textContent = fmt(totalInterest);
   $('m-out-cost').textContent     = fmt(totalPaid + down);
 
+  // Summary Logic
+  const intPct = ((totalInterest / loan) * 100).toFixed(0);
+  $('m-analysis').innerHTML = `
+    With a <strong>${downP}% down payment</strong> ($${fmtK(down)}), you will borrow <strong>${fmt(loan)}</strong>. 
+    Over ${term} years, you will pay <strong>${fmt(totalInterest)}</strong> in interest, which is roughly <strong>${intPct}%</strong> of the loan amount. 
+    Your estimated monthly payment including taxes and insurance is <strong>${fmt(totalMonthly)}</strong>.
+  `;
+
+  // Annual chart data
   const schedule = buildAmortization(loan, rate, months);
   const labels = [], intData = [], princData = [];
   for (let y = 1; y <= term; y++) {
@@ -691,8 +653,8 @@ function calcMortgage() {
     data: {
       labels,
       datasets: [
-        { label: 'Interest', data: intData, backgroundColor: 'rgba(245,158,11,0.7)', borderColor: '#F59E0B', borderWidth: 1, borderRadius: 3 },
-        { label: 'Principal', data: princData, backgroundColor: 'rgba(79,70,229,0.7)', borderColor: '#4F46E5', borderWidth: 1, borderRadius: 3 }
+        { label: 'Interest', data: intData, backgroundColor: 'rgba(245,158,11,0.7)', borderColor: '#F59E0B', borderWidth: 1, borderRadius: 4 },
+        { label: 'Principal', data: princData, backgroundColor: 'rgba(79,70,229,0.7)', borderColor: '#4F46E5', borderWidth: 1, borderRadius: 4 }
       ]
     },
     options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => fmtK(v) } } } }
@@ -718,6 +680,13 @@ function calcVehicle() {
   $('v-out-tax').textContent      = fmt(taxAmt);
   $('v-out-interest').textContent = fmt(Math.max(0, totalInterest));
 
+  // Summary Logic
+  $('v-analysis').innerHTML = `
+    After trade-in and a down payment of <strong>${fmt(down)}</strong>, you are financing <strong>${fmt(loan)}</strong> (including sales tax). 
+    Your monthly payment will be <strong>${fmt(monthly)}</strong> for ${term} months. 
+    By the end of the loan, you will have paid <strong>${fmt(totalInterest)}</strong> in interest charges.
+  `;
+
   const schedule = buildAmortization(loan, rate, term);
   const step = Math.max(1, Math.floor(term / 20));
   const labels = [], balData = [];
@@ -730,7 +699,7 @@ function calcVehicle() {
     type: 'line',
     data: {
       labels,
-      datasets: [{ label: 'Remaining Balance', data: balData, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2 }]
+      datasets: [{ label: 'Remaining Balance', data: balData, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 3, borderWidth: 3 }]
     },
     options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => fmtK(v) } } } }
   });
@@ -753,7 +722,15 @@ function calcPersonal() {
   $('p-out-pct').textContent      = `${pct.toFixed(1)}%`;
   $('p-out-bar').style.width      = `${Math.min(100, pct).toFixed(1)}%`;
 
+  // Summary Logic
+  $('p-analysis').innerHTML = `
+    To borrow <strong>${fmt(amount)}</strong> over ${term} months at ${rate}%, you will need to pay <strong>${fmt(monthly)}</strong> per month. 
+    The total cost of this loan (interest) is <strong>${fmt(totalInterest)}</strong>, bringing your total repayment to <strong>${fmt(totalPaid)}</strong>.
+  `;
+
   const schedule = buildAmortization(amount, rate, term);
+
+  // Chart
   const labels = schedule.map(r => r.month);
   const princData = schedule.map(r => Math.round(r.principal));
   const intData   = schedule.map(r => Math.round(r.interest));
@@ -770,6 +747,7 @@ function calcPersonal() {
     options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, x: { ...baseChartOpts.scales.x, stacked: true }, y: { ...baseChartOpts.scales.y, stacked: true, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => `$${v}` } } } }
   });
 
+  // Table
   const tbody = $('p-table');
   tbody.innerHTML = schedule.map(r => `
     <tr>
@@ -820,9 +798,17 @@ function calcSavings() {
   $('s-out-contrib').textContent = fmt(finalContrib);
   $('s-out-growth').textContent  = fmt(Math.max(0, growth));
 
+  // Summary Logic
+  const multiplier = (finalBal / finalContrib).toFixed(1);
+  $('s-analysis').innerHTML = `
+    If you start with <strong>${fmt(initial)}</strong> and contribute <strong>${fmt(monthly)}/mo</strong> for ${years} years at ${rate}%, your portfolio could grow to <strong>${fmt(finalBal)}</strong>. 
+    <br>That is <strong>${fmt(growth)}</strong> in pure investment earnings. Your money effectively multiplied by <strong>${multiplier}x</strong>.
+  `;
+
+  // Milestones
   const milestones = [5, 10, 20].filter(y => y <= years);
   $('s-milestones').innerHTML = milestones.map(y => {
-    const idx = y;
+    const idx = y; // year index matches label index
     const bal = balData[idx] || 0;
     const con = contribData[idx] || 0;
     return `<div class="milestone">
@@ -837,8 +823,8 @@ function calcSavings() {
     data: {
       labels,
       datasets: [
-        { label: 'Portfolio Value', data: balData, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.12)', fill: true, tension: 0.4, pointRadius: 1, borderWidth: 2.5 },
-        { label: 'Contributions', data: contribData, borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.08)', fill: true, tension: 0.4, pointRadius: 1, borderWidth: 2, borderDash: [4,3] }
+        { label: 'Portfolio Value', data: balData, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.12)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 3 },
+        { label: 'Contributions', data: contribData, borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.08)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2, borderDash: [4,3] }
       ]
     },
     options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => fmtK(v) } } } }
@@ -851,19 +837,16 @@ function switchTab(id, btn) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   $(`page-${id}`).classList.add('active');
   btn.classList.add('active');
-  if (id === 'mortgage') calcMortgage();
-  if (id === 'vehicle')  calcVehicle();
-  if (id === 'personal') calcPersonal();
-  if (id === 'savings')  calcSavings();
+  // Trigger calc to ensure charts render correctly in new size
+  setTimeout(() => {
+    if (id === 'mortgage') calcMortgage();
+    if (id === 'vehicle')  calcVehicle();
+    if (id === 'personal') calcPersonal();
+    if (id === 'savings')  calcSavings();
+  }, 50);
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-// Load stored theme
-if (localStorage.getItem('theme') === 'light') {
-  document.body.classList.add('light-mode');
-  toggleTheme(true);
-}
-
 calcMortgage();
 calcVehicle();
 calcPersonal();
