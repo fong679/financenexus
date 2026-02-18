@@ -22,6 +22,19 @@
     --surface-high: #263346;
     --accent: #F59E0B;
   }
+
+  /* Light Mode Overrides */
+  body.light-mode {
+    --slate: #F1F5F9;
+    --slate-light: #E2E8F0;
+    --border: #CBD5E1;
+    --muted: #64748B;
+    --text: #0F172A;
+    --text-muted: #475569;
+    --surface: #FFFFFF;
+    --surface-high: #F8FAFC;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
@@ -31,7 +44,14 @@
     color: var(--text);
     font-family: 'DM Sans', sans-serif;
     min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
   }
+
+  body.light-mode {
+    background-image: radial-gradient(ellipse at 20% 0%, #4f46e511 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 100%, #10b98111 0%, transparent 60%);
+  }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: var(--slate); }
@@ -46,6 +66,8 @@
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
+  body.light-mode .topbar { background: rgba(255, 255, 255, 0.8); }
+
   .topbar-brand { display: flex; align-items: center; gap: 12px; }
   .brand-icon {
     width: 34px; height: 34px; border-radius: 8px;
@@ -55,6 +77,25 @@
   }
   .brand-name { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
   .brand-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* Theme Toggle Button */
+  .theme-toggle {
+    background: var(--surface-high);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .theme-toggle:hover { background: var(--slate-light); }
+
   .live-badge {
     padding: 4px 12px; border-radius: 99px; font-size: 11px;
     background: rgba(16,185,129,0.15); color: var(--emerald-light);
@@ -72,6 +113,8 @@
     background: rgba(30,41,59,0.5);
     display: flex; flex-direction: column; gap: 4px;
   }
+  body.light-mode .sidebar { background: rgba(241, 245, 249, 0.5); }
+
   .nav-item {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 12px; border-radius: 10px;
@@ -91,6 +134,7 @@
     display: flex; align-items: center; justify-content: center;
     background: rgba(51,65,85,0.5); font-size: 15px; flex-shrink: 0;
   }
+  body.light-mode .nav-icon { background: rgba(203, 213, 225, 0.5); }
   .nav-item.active .nav-icon { background: rgba(79,70,229,0.25); }
   .nav-label { font-size: 13px; font-weight: 500; }
   .nav-desc { font-size: 10px; color: var(--muted); margin-top: 1px; }
@@ -106,6 +150,7 @@
   .panel {
     background: var(--surface); border-radius: 16px;
     padding: 24px; border: 1px solid var(--border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
   .section-title {
     font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
@@ -186,9 +231,9 @@
   /* Table */
   .amort-table-wrap { max-height: 200px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); margin-top: 16px; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'DM Mono', monospace; }
-  thead { position: sticky; top: 0; background: var(--surface-high); }
+  thead { position: sticky; top: 0; background: var(--surface-high); z-index: 10; }
   th { padding: 8px 10px; color: var(--muted); text-align: right; border-bottom: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 11px; }
-  td { padding: 6px 10px; text-align: right; border-bottom: 1px solid rgba(51,65,85,0.3); }
+  td { padding: 6px 10px; text-align: right; border-bottom: 1px solid rgba(51,65,85,0.1); }
   tr:last-child td { border-bottom: none; }
   .col-month { color: var(--muted); }
   .col-principal { color: var(--primary-light); }
@@ -199,10 +244,11 @@
   /* Footer note */
   .footer-note {
     margin-top: 28px; padding: 12px 16px; border-radius: 10px;
-    background: rgba(30,41,59,0.6); border: 1px solid var(--border);
+    background: rgba(30,41,59,0.4); border: 1px solid var(--border);
     display: flex; align-items: center; gap: 10px;
     font-size: 12px; color: var(--muted);
   }
+  body.light-mode .footer-note { background: rgba(226, 232, 240, 0.4); }
 
   /* Calculator pages */
   .calc-page { display: none; }
@@ -233,7 +279,6 @@
 </head>
 <body>
 
-<!-- Top Bar -->
 <div class="topbar">
   <div class="topbar-brand">
     <div class="brand-icon">📊</div>
@@ -242,13 +287,17 @@
       <div class="brand-sub">Financial Calculator Suite</div>
     </div>
   </div>
-  <div class="live-badge">LIVE CALC</div>
+  <div style="display: flex; align-items: center;">
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <span id="theme-icon">🌙</span>
+      <span style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Theme</span>
+    </button>
+    <div class="live-badge">LIVE CALC</div>
+  </div>
 </div>
 
-<!-- App Body -->
 <div class="app-body">
 
-  <!-- Sidebar -->
   <nav class="sidebar">
     <button class="nav-item active" onclick="switchTab('mortgage', this)">
       <div class="nav-icon">🏠</div>
@@ -268,10 +317,8 @@
     </button>
   </nav>
 
-  <!-- Content -->
   <main class="content">
 
-    <!-- ═══ MORTGAGE ═══ -->
     <div id="page-mortgage" class="calc-page active">
       <div class="page-header">
         <span class="page-header-icon">🏠</span>
@@ -281,7 +328,6 @@
         </div>
       </div>
       <div class="calc-grid">
-        <!-- Left: Inputs -->
         <div class="panel">
           <div class="section-title">Loan Parameters</div>
           <div class="input-group">
@@ -316,7 +362,6 @@
           </div>
         </div>
 
-        <!-- Right: Results -->
         <div class="grid-col">
           <div class="panel">
             <div class="section-title">Monthly Breakdown</div>
@@ -340,7 +385,6 @@
       <div class="footer-note">ℹ️ Calculations are estimates for illustrative purposes only. Consult a licensed financial advisor before making financial decisions.</div>
     </div>
 
-    <!-- ═══ VEHICLE ═══ -->
     <div id="page-vehicle" class="calc-page">
       <div class="page-header">
         <span class="page-header-icon">🚗</span>
@@ -405,7 +449,6 @@
       <div class="footer-note">ℹ️ Calculations are estimates for illustrative purposes only. Consult a licensed financial advisor before making financial decisions.</div>
     </div>
 
-    <!-- ═══ PERSONAL ═══ -->
     <div id="page-personal" class="calc-page">
       <div class="page-header">
         <span class="page-header-icon">💳</span>
@@ -465,7 +508,6 @@
       <div class="footer-note">ℹ️ Calculations are estimates for illustrative purposes only. Consult a licensed financial advisor before making financial decisions.</div>
     </div>
 
-    <!-- ═══ SAVINGS ═══ -->
     <div id="page-savings" class="calc-page">
       <div class="page-header">
         <span class="page-header-icon">📈</span>
@@ -562,6 +604,36 @@ function buildAmortization(principal, annualRate, termMonths) {
   });
 }
 
+// ─── Theme Management ───────────────────────────────────────────────────────
+let gridColor = 'rgba(51,65,85,0.5)';
+let tickColor = '#64748B';
+
+function toggleTheme(isInitialLoad = false) {
+  const body = document.body;
+  if (!isInitialLoad) body.classList.toggle('light-mode');
+  
+  const isLight = body.classList.contains('light-mode');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  $('theme-icon').textContent = isLight ? '☀️' : '🌙';
+
+  // Update Chart colors for the current theme
+  gridColor = isLight ? 'rgba(203, 213, 225, 0.8)' : 'rgba(51,65,85,0.5)';
+  tickColor = isLight ? '#475569' : '#64748B';
+  
+  baseChartOpts.scales.x.grid.color = gridColor;
+  baseChartOpts.scales.x.ticks.color = tickColor;
+  baseChartOpts.scales.y.grid.color = gridColor;
+  baseChartOpts.scales.y.ticks.color = tickColor;
+
+  // Redraw charts if this isn't the initial setup
+  if (!isInitialLoad) {
+    calcMortgage();
+    calcVehicle();
+    calcPersonal();
+    calcSavings();
+  }
+}
+
 // ─── Chart Registry ──────────────────────────────────────────────────────────
 const charts = {};
 function makeChart(id, config) {
@@ -569,11 +641,12 @@ function makeChart(id, config) {
   charts[id] = new Chart($(id), config);
 }
 
-const gridColor = 'rgba(51,65,85,0.5)';
-const tickColor = '#64748B';
 const baseChartOpts = {
   responsive: true,
-  plugins: { legend: { labels: { color: tickColor, font: { family: 'DM Sans' }, boxWidth: 12 } }, tooltip: { backgroundColor: '#1E293B', borderColor: '#334155', borderWidth: 1, titleColor: '#F1F5F9', bodyColor: '#94A3B8' } },
+  plugins: { 
+    legend: { labels: { color: tickColor, font: { family: 'DM Sans' }, boxWidth: 12 } }, 
+    tooltip: { backgroundColor: '#1E293B', borderColor: '#334155', borderWidth: 1, titleColor: '#F1F5F9', bodyColor: '#94A3B8' } 
+  },
   scales: {
     x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'DM Mono', size: 11 } } },
     y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'DM Mono', size: 11 } } }
@@ -603,7 +676,6 @@ function calcMortgage() {
   $('m-out-interest').textContent = fmt(totalInterest);
   $('m-out-cost').textContent     = fmt(totalPaid + down);
 
-  // Annual chart data
   const schedule = buildAmortization(loan, rate, months);
   const labels = [], intData = [], princData = [];
   for (let y = 1; y <= term; y++) {
@@ -681,8 +753,6 @@ function calcPersonal() {
   $('p-out-bar').style.width      = `${Math.min(100, pct).toFixed(1)}%`;
 
   const schedule = buildAmortization(amount, rate, term);
-
-  // Chart
   const labels = schedule.map(r => r.month);
   const princData = schedule.map(r => Math.round(r.principal));
   const intData   = schedule.map(r => Math.round(r.interest));
@@ -699,7 +769,6 @@ function calcPersonal() {
     options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, x: { ...baseChartOpts.scales.x, stacked: true }, y: { ...baseChartOpts.scales.y, stacked: true, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => `$${v}` } } } }
   });
 
-  // Table
   const tbody = $('p-table');
   tbody.innerHTML = schedule.map(r => `
     <tr>
@@ -750,10 +819,9 @@ function calcSavings() {
   $('s-out-contrib').textContent = fmt(finalContrib);
   $('s-out-growth').textContent  = fmt(Math.max(0, growth));
 
-  // Milestones
   const milestones = [5, 10, 20].filter(y => y <= years);
   $('s-milestones').innerHTML = milestones.map(y => {
-    const idx = y; // year index matches label index
+    const idx = y;
     const bal = balData[idx] || 0;
     const con = contribData[idx] || 0;
     return `<div class="milestone">
@@ -782,7 +850,6 @@ function switchTab(id, btn) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   $(`page-${id}`).classList.add('active');
   btn.classList.add('active');
-  // Trigger calc to ensure charts render
   if (id === 'mortgage') calcMortgage();
   if (id === 'vehicle')  calcVehicle();
   if (id === 'personal') calcPersonal();
@@ -790,6 +857,12 @@ function switchTab(id, btn) {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
+// Load stored theme
+if (localStorage.getItem('theme') === 'light') {
+  document.body.classList.add('light-mode');
+  toggleTheme(true);
+}
+
 calcMortgage();
 calcVehicle();
 calcPersonal();
@@ -797,4 +870,3 @@ calcSavings();
 </script>
 </body>
 </html>
-''
