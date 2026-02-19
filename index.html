@@ -1,1143 +1,817 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Finance Calculator</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234F46E5'/><text x='50%' y='56%' dominant-baseline='middle' text-anchor='middle' font-size='18'>💰</text></svg>" />
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Finance Calculator — Fiji</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234F46E5'/><text x='50%' y='56%' dominant-baseline='middle' text-anchor='middle' font-size='18'>💰</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root {
-    --primary: #4F46E5;
-    --primary-light: #818CF8;
-    --primary-dim: rgba(79,70,229,0.15);
-    --emerald: #10B981;
-    --emerald-light: #6EE7B7;
-    --slate: #0F172A;
-    --slate-light: #1E293B;
-    --border: #334155;
-    --muted: #94A3B8;
-    --text: #F8FAFC;
-    --surface: #1E293B;
-    --surface-high: #263346;
-    --accent: #F59E0B;
-    --topbar-bg: rgba(15,23,42,0.92);
-    --input-bg: #0F172A;
-    --input-color: white;
-    --news-bg: #1a2438;
-  }
-  :root.light {
-    --primary: #4338CA;
-    --primary-light: #6366F1;
-    --primary-dim: rgba(99,102,241,0.12);
-    --emerald: #059669;
-    --emerald-light: #047857;
-    --slate: #F1F5F9;
-    --slate-light: #E2E8F0;
-    --border: #CBD5E1;
-    --muted: #64748B;
-    --text: #0F172A;
-    --surface: #FFFFFF;
-    --surface-high: #F1F5F9;
-    --accent: #D97706;
-    --topbar-bg: rgba(255,255,255,0.95);
-    --input-bg: #F8FAFC;
-    --input-color: #0F172A;
-    --news-bg: #F8FAFC;
-  }
-  html { transition: background 0.3s; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--slate);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    min-height: 100vh;
-  }
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: var(--slate); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+:root{--primary:#4F46E5;--primary-light:#818CF8;--primary-dim:rgba(79,70,229,0.15);--emerald:#10B981;--emerald-light:#6EE7B7;--slate:#0F172A;--slate-light:#1E293B;--border:#334155;--muted:#94A3B8;--text:#F8FAFC;--surface:#1E293B;--surface-high:#263346;--accent:#F59E0B;--topbar-bg:rgba(15,23,42,0.92);--input-bg:#0F172A;--input-color:#F8FAFC;--news-bg:#182030;--danger:#EF4444;}
+:root.light{--primary:#4338CA;--primary-light:#6366F1;--primary-dim:rgba(99,102,241,0.12);--emerald:#059669;--emerald-light:#047857;--slate:#F1F5F9;--slate-light:#E2E8F0;--border:#CBD5E1;--muted:#64748B;--text:#0F172A;--surface:#FFFFFF;--surface-high:#F1F5F9;--accent:#D97706;--topbar-bg:rgba(255,255,255,0.95);--input-bg:#F8FAFC;--input-color:#0F172A;--news-bg:#F8FAFC;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--slate);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.5;min-height:100vh;transition:background 0.3s,color 0.3s;}
+::-webkit-scrollbar{width:7px;height:7px;}::-webkit-scrollbar-track{background:var(--slate);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
-  /* Top Bar */
-  .topbar {
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px; height: 70px; /* Taller header */
-    background: var(--topbar-bg);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-  }
-  .topbar-brand { display: flex; align-items: center; gap: 14px; }
-  .brand-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-  }
-  .brand-name { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
-  .brand-sub { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
-  .live-badge {
-    padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 600;
-    background: rgba(16,185,129,0.15); color: var(--emerald-light);
-    border: 1px solid rgba(16,185,129,0.3); letter-spacing: 0.05em;
-  }
+/* AUTH */
+#auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--slate);background-image:radial-gradient(ellipse at 20% 10%,rgba(79,70,229,0.18) 0%,transparent 55%),radial-gradient(ellipse at 80% 90%,rgba(16,185,129,0.12) 0%,transparent 55%);}
+.auth-card{width:100%;max-width:440px;margin:24px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 36px;box-shadow:0 25px 60px rgba(0,0,0,0.4);}
+.auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;}
+.auth-logo-icon{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:22px;}
+.auth-logo-name{font-size:20px;font-weight:700;letter-spacing:-0.02em;}
+.auth-logo-sub{font-size:11px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;}
+.auth-tabs{display:flex;gap:4px;background:var(--slate);border-radius:10px;padding:4px;margin-bottom:28px;}
+.auth-tab{flex:1;padding:9px;border-radius:7px;border:none;cursor:pointer;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;background:transparent;color:var(--muted);transition:all 0.2s;}
+.auth-tab.active{background:var(--primary);color:white;box-shadow:0 2px 8px rgba(79,70,229,0.4);}
+.auth-panel{display:none;}.auth-panel.active{display:block;}
+.auth-field{margin-bottom:18px;}
+.auth-label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px;}
+.auth-input{width:100%;background:var(--input-bg);border:1px solid var(--border);color:var(--input-color);border-radius:9px;padding:11px 14px;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border 0.2s;}
+.auth-input:focus{border-color:var(--primary-light);}
+.auth-btn{width:100%;padding:13px;border-radius:10px;border:none;cursor:pointer;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;box-shadow:0 4px 15px rgba(79,70,229,0.35);transition:all 0.2s;margin-top:4px;}
+.auth-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.45);}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.auth-msg{padding:11px 14px;border-radius:9px;font-size:13px;margin-top:14px;display:none;}
+.auth-msg.success{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--emerald-light);}
+.auth-msg.error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;}
+.auth-divider{text-align:center;font-size:12px;color:var(--muted);margin:18px 0;}
+.auth-footer{text-align:center;font-size:12px;color:var(--muted);margin-top:20px;}
+.auth-verify-box{text-align:center;padding:18px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;margin-top:16px;display:none;}
+.auth-verify-icon{font-size:36px;margin-bottom:8px;}
+.auth-verify-title{font-size:16px;font-weight:700;color:var(--emerald-light);margin-bottom:6px;}
+.auth-verify-sub{font-size:13px;color:var(--muted);}
 
-  /* Layout */
-  .app-body { display: flex; min-height: calc(100vh - 70px); }
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;background:var(--topbar-bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.topbar-brand{display:flex;align-items:center;gap:12px;}
+.brand-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:19px;}
+.brand-name{font-size:17px;font-weight:700;letter-spacing:-0.01em;}
+.brand-sub{font-size:11px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.icon-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface-high);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:all 0.2s;}
+.icon-btn:hover{border-color:var(--primary);}
+.live-badge{padding:5px 13px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(16,185,129,0.15);color:var(--emerald-light);border:1px solid rgba(16,185,129,0.3);letter-spacing:0.05em;}
+.user-chip{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;background:var(--surface-high);border:1px solid var(--border);border-radius:99px;cursor:pointer;transition:all 0.2s;}
+.user-chip:hover{border-color:var(--danger);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;}
+.user-name{font-size:13px;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-  /* Sidebar */
-  .sidebar {
-    width: 260px; flex-shrink: 0;
-    padding: 24px 16px;
-    border-right: 1px solid var(--border);
-    background: rgba(30,41,59,0.3);
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .nav-item {
-    display: flex; align-items: center; gap: 14px;
-    padding: 14px 16px; border-radius: 12px;
-    cursor: pointer; border: none; width: 100%;
-    background: transparent; color: var(--muted);
-    text-align: left; transition: all 0.2s;
-    border-left: 3px solid transparent;
-  }
-  .nav-item:hover { background: var(--surface-high); color: var(--text); }
-  .nav-item.active {
-    background: var(--primary-dim);
-    border-left-color: var(--primary-light);
-    color: white;
-  }
-  .nav-icon {
-    width: 36px; height: 36px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(51,65,85,0.5); font-size: 18px; flex-shrink: 0;
-  }
-  .nav-item.active .nav-icon { background: rgba(79,70,229,0.4); color: white; }
-  .nav-label { font-size: 15px; font-weight: 600; }
-  .nav-desc { font-size: 12px; opacity: 0.7; margin-top: 2px; font-weight: 400; }
+/* APP LAYOUT */
+#app-screen{display:none;}
+.app-body{display:flex;min-height:calc(100vh - 64px);}
 
-  /* Content */
-  .content { flex: 1; padding: 32px; overflow-y: auto; max-width: 1600px; margin: 0 auto; width: 100%; }
-  .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
-  .page-header-icon { font-size: 32px; }
-  .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
-  .page-sub { font-size: 15px; color: var(--muted); margin-top: 4px; }
+/* LEFT SIDEBAR */
+.sidebar{width:248px;flex-shrink:0;padding:18px 12px;border-right:1px solid var(--border);background:rgba(30,41,59,0.3);display:flex;flex-direction:column;gap:4px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:11px;cursor:pointer;border:none;width:100%;background:transparent;color:var(--muted);text-align:left;transition:all 0.18s;border-left:3px solid transparent;}
+.nav-item:hover{background:var(--surface-high);color:var(--text);}
+.nav-item.active{background:var(--primary-dim);border-left-color:var(--primary-light);color:white;}
+.nav-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(51,65,85,0.5);font-size:16px;flex-shrink:0;}
+.nav-item.active .nav-icon{background:rgba(79,70,229,0.35);}
+.nav-label{font-size:14px;font-weight:600;}
+.nav-desc{font-size:11px;opacity:0.65;margin-top:2px;}
+.nav-divider{height:1px;background:var(--border);margin:6px 4px;}
 
-  /* Panels */
-  .panel {
-    background: var(--surface); border-radius: 18px;
-    padding: 28px; border: 1px solid var(--border);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
-  /* NEW: Analysis Panel Style */
-  .analysis-panel {
-    background: linear-gradient(145deg, rgba(79,70,229,0.08), rgba(30,41,59,0.4));
-    border: 1px solid rgba(129,140,248,0.2);
-    margin-bottom: 24px;
-  }
-  .analysis-text {
-    font-size: 15px; color: var(--text); line-height: 1.6;
-  }
-  .analysis-text strong { color: var(--primary-light); font-weight: 600; }
-  
-  .section-title {
-    font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--text);
-    border-left: 4px solid var(--primary); padding-left: 12px;
-    margin: 0 0 24px; display: flex; align-items: center; gap: 8px;
-  }
+/* CONTENT */
+.content{flex:1;padding:26px;overflow-y:auto;}
+.page-header{display:flex;align-items:center;gap:13px;margin-bottom:26px;}
+.page-header-icon{font-size:28px;}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-0.02em;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:3px;}
 
-  /* Grid layouts */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-  .grid-col { display: flex; flex-direction: column; gap: 24px; }
-  .calc-grid { display: grid; grid-template-columns: 400px 1fr; gap: 24px; }
+/* PANELS */
+.panel{background:var(--surface);border-radius:16px;padding:24px;border:1px solid var(--border);box-shadow:0 3px 14px rgba(0,0,0,0.07);}
+.analysis-panel{background:linear-gradient(145deg,rgba(79,70,229,0.07),rgba(30,41,59,0.4));border:1px solid rgba(129,140,248,0.18);margin-bottom:18px;}
+.analysis-text{font-size:14px;color:var(--text);line-height:1.65;}
+.analysis-text strong{color:var(--primary-light);font-weight:600;}
+.section-title{font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);border-left:4px solid var(--primary);padding-left:11px;margin:0 0 18px;display:flex;align-items:center;gap:8px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.grid-col{display:flex;flex-direction:column;gap:18px;}
+.calc-grid{display:grid;grid-template-columns:380px 1fr;gap:18px;}
 
-  /* Stat Cards */
-  .stat-card {
-    background: var(--surface-high); border: 1px solid var(--border);
-    border-radius: 14px; padding: 18px 22px;
-  }
-  .stat-card.accent {
-    background: linear-gradient(135deg, rgba(79,70,229,0.2), rgba(129,140,248,0.05));
-    border-color: rgba(129,140,248,0.3);
-  }
-  .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
-  .stat-value {
-    font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 700;
-    color: var(--text); margin-top: 8px; letter-spacing: -0.02em;
-  }
-  .stat-card.accent .stat-value { color: var(--primary-light); font-size: 36px; }
-  .stat-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+/* STAT CARDS */
+.stat-card{background:var(--surface-high);border:1px solid var(--border);border-radius:12px;padding:15px 18px;}
+.stat-card.accent{background:linear-gradient(135deg,rgba(79,70,229,0.18),rgba(129,140,248,0.05));border-color:rgba(129,140,248,0.28);}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);font-weight:600;}
+.stat-value{font-family:'DM Mono',monospace;font-size:24px;font-weight:700;color:var(--text);margin-top:6px;letter-spacing:-0.02em;}
+.stat-card.accent .stat-value{color:var(--primary-light);font-size:30px;}
 
-  /* Slider Input */
-  .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-  .input-row { display: flex; justify-content: space-between; align-items: center; }
-  .input-label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
-  .input-number {
-    background: var(--input-bg); border: 1px solid var(--border);
-    color: var(--input-color); border-radius: 8px; padding: 8px 12px;
-    width: 140px; text-align: right; font-size: 16px; /* Larger input font */
-    font-family: 'DM Mono', monospace; outline: none; transition: border 0.2s;
-  }
-  .input-number:focus { border-color: var(--primary-light); }
-  
-  input[type=range] {
-    -webkit-appearance: none; width: 100%; height: 6px;
-    border-radius: 99px; background: var(--surface-high); cursor: pointer;
-    margin-top: 4px;
-  }
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 20px; height: 20px; /* Larger thumb */
-    border-radius: 50%; background: var(--primary);
-    border: 3px solid var(--primary-light); cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-  .range-hints { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 2px; }
+/* INPUTS */
+.input-group{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.input-row{display:flex;justify-content:space-between;align-items:center;}
+.input-label{font-size:13px;font-weight:600;color:#cbd5e1;}
+.input-number{background:var(--input-bg);border:1px solid var(--border);color:var(--input-color);border-radius:8px;padding:7px 11px;width:128px;text-align:right;font-size:14px;font-family:'DM Mono',monospace;outline:none;transition:border 0.2s;}
+.input-number:focus{border-color:var(--primary-light);}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:99px;background:var(--surface-high);cursor:pointer;margin-top:3px;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--primary);border:3px solid var(--primary-light);cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,0.25);}
+.range-hints{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:1px;}
+.toggle-group{display:flex;gap:7px;margin-top:6px;}
+.toggle-btn{flex:1;padding:8px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.2s;text-transform:capitalize;}
+.toggle-btn.active{border-color:var(--primary);background:rgba(79,70,229,0.18);color:white;}
 
-  /* Toggle buttons */
-  .toggle-group { display: flex; gap: 8px; margin-top: 8px; }
-  .toggle-btn {
-    flex: 1; padding: 10px; border-radius: 10px; cursor: pointer;
-    border: 1px solid var(--border); background: transparent;
-    color: var(--muted); font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500;
-    transition: all 0.2s; text-transform: capitalize;
-  }
-  .toggle-btn.active {
-    border-color: var(--primary); background: rgba(79,70,229,0.2);
-    color: white;
-  }
+/* SAVE BAR */
+.save-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(135deg,rgba(79,70,229,0.1),rgba(16,185,129,0.06));border:1px solid rgba(79,70,229,0.2);border-radius:11px;margin-bottom:18px;}
+.save-bar input{flex:1;background:var(--input-bg);border:1px solid var(--border);color:var(--input-color);border-radius:8px;padding:7px 11px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
+.save-bar input:focus{border-color:var(--primary-light);}
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;}
+.btn-primary{background:var(--primary);color:white;}.btn-primary:hover{background:var(--primary-light);}
+.btn-emerald{background:var(--emerald);color:white;}.btn-emerald:hover{opacity:0.85;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}.btn-outline:hover{border-color:var(--primary);background:var(--primary-dim);}
+.btn-danger{background:var(--danger);color:white;font-size:12px;padding:5px 11px;}.btn-danger:hover{opacity:0.85;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
 
-  /* Chart container */
-  .chart-wrap { position: relative; width: 100%; margin-top: 10px; }
+/* SAVED PANEL */
+.saved-list{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+.saved-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px 17px;transition:border 0.2s;}
+.saved-card:hover{border-color:var(--primary);}
+.saved-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.saved-card-title{font-size:15px;font-weight:700;color:var(--text);}
+.saved-card-type{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;}
+.type-mortgage{background:rgba(79,70,229,0.18);color:var(--primary-light);}
+.type-vehicle{background:rgba(16,185,129,0.18);color:var(--emerald-light);}
+.type-personal{background:rgba(245,158,11,0.18);color:var(--accent);}
+.type-savings{background:rgba(148,163,184,0.18);color:var(--muted);}
+.saved-card-summary{font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+.saved-card-actions{display:flex;gap:7px;flex-wrap:wrap;}
+.saved-date{font-size:11px;color:var(--muted);margin-top:7px;}
 
-  /* Progress bar */
-  .progress-bar-wrap { background: var(--surface-high); border-radius: 99px; height: 12px; overflow: hidden; margin-top: 10px; border: 1px solid var(--border); }
-  .progress-bar-fill {
-    height: 100%; border-radius: 99px;
-    background: linear-gradient(90deg, var(--primary), var(--primary-light));
-    transition: width 0.4s ease;
-  }
+/* COMPARE */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+.compare-col{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px;}
+.compare-col-header{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--border);}
+.compare-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(51,65,85,0.18);}
+.compare-row:last-child{border-bottom:none;}
+.compare-key{font-size:12px;color:var(--muted);}
+.compare-val{font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text);}
+.compare-val.highlight{color:var(--emerald-light);}
+.compare-empty{text-align:center;color:var(--muted);font-size:13px;padding:40px 20px;}
+.compare-selector{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+select{flex:1;background:var(--input-bg);border:1px solid var(--border);color:var(--input-color);border-radius:9px;padding:9px 11px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;}
 
-  /* Table */
-  .amort-table-wrap { max-height: 300px; overflow-y: auto; border-radius: 12px; border: 1px solid var(--border); margin-top: 24px; background: var(--surface-high); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'DM Mono', monospace; }
-  thead { position: sticky; top: 0; background: var(--slate); z-index: 10; }
-  th { padding: 12px 14px; color: var(--muted); text-align: right; border-bottom: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 12px; }
-  td { padding: 10px 14px; text-align: right; border-bottom: 1px solid rgba(51,65,85,0.3); color: #cbd5e1; }
-  tr:last-child td { border-bottom: none; }
-  .col-principal { color: var(--primary-light); }
-  .col-interest { color: var(--accent); }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:30px;max-width:480px;width:calc(100% - 40px);box-shadow:0 25px 60px rgba(0,0,0,0.4);}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:5px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+.share-link-box{display:flex;gap:8px;}
+.share-link-input{flex:1;background:var(--input-bg);border:1px solid var(--border);color:var(--input-color);border-radius:8px;padding:8px 11px;font-size:12px;font-family:'DM Mono',monospace;outline:none;}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
 
-  /* Footer note */
-  .footer-note {
-    margin-top: 32px; padding: 16px 20px; border-radius: 12px;
-    background: rgba(30,41,59,0.4); border: 1px solid var(--border);
-    display: flex; align-items: center; gap: 12px;
-    font-size: 13px; color: var(--muted);
-  }
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface-high);border:1px solid var(--border);border-radius:10px;padding:11px 20px;font-size:14px;font-weight:600;z-index:9999;opacity:0;transition:all 0.35s;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.success{border-color:var(--emerald);color:var(--emerald-light);}
+#toast.error{border-color:var(--danger);color:#FCA5A5;}
 
-  /* Calculator pages */
-  .calc-page { display: none; animation: fadeIn 0.3s ease; }
-  .calc-page.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* CHARTS & TABLE */
+.chart-wrap{position:relative;width:100%;margin-top:7px;}
+.progress-bar-wrap{background:var(--surface-high);border-radius:99px;height:10px;overflow:hidden;margin-top:8px;border:1px solid var(--border);}
+.progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--primary-light));transition:width 0.4s ease;}
+.amort-table-wrap{max-height:250px;overflow-y:auto;border-radius:10px;border:1px solid var(--border);margin-top:18px;background:var(--surface-high);}
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:'DM Mono',monospace;}
+thead{position:sticky;top:0;background:var(--slate);z-index:10;}
+th{padding:9px 12px;color:var(--muted);text-align:right;border-bottom:1px solid var(--border);font-family:'DM Sans',sans-serif;font-weight:600;font-size:11px;}
+td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22);color:#cbd5e1;}
+.col-principal{color:var(--primary-light);}.col-interest{color:var(--accent);}
 
-  /* Milestone cards */
-  .milestone { background: var(--surface-high); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
-  .milestone-year { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-  .milestone-val { font-size: 20px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--emerald-light); }
-  .milestone-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+/* FOOTER */
+.footer-note{margin-top:26px;padding:13px 17px;border-radius:10px;background:rgba(30,41,59,0.4);border:1px solid var(--border);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:9px;}
 
-  /* Theme toggle */
-  .theme-btn {
-    width: 38px; height: 38px; border-radius: 9px; cursor: pointer;
-    border: 1px solid var(--border); background: var(--surface-high);
-    display: flex; align-items: center; justify-content: center; font-size: 17px;
-    transition: all 0.2s; flex-shrink: 0;
-  }
-  .theme-btn:hover { border-color: var(--primary); background: var(--surface); }
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
+/* NEWS SIDEBAR */
+.news-sidebar{width:268px;flex-shrink:0;border-left:1px solid var(--border);background:var(--news-bg);display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px;}
+.news-section{border-bottom:1px solid var(--border);}
+.news-section-header{padding:11px 13px 7px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);display:flex;align-items:center;gap:7px;border-left:3px solid var(--primary);margin:11px 10px 3px;border-radius:0 4px 4px 0;}
+.bank-card{margin:4px 9px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;text-decoration:none;display:block;transition:all 0.15s;}
+.bank-card:hover{border-color:var(--primary);transform:translateY(-1px);}
+.bank-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.bank-name{font-size:13px;font-weight:700;color:var(--text);}
+.bank-badge{font-size:9px;padding:2px 6px;border-radius:99px;background:var(--primary-dim);color:var(--primary-light);border:1px solid rgba(79,70,229,0.2);font-weight:600;letter-spacing:0.05em;}
+.rate-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(51,65,85,0.13);}
+.rate-row:last-child{border-bottom:none;}
+.rate-label{font-size:11px;color:var(--muted);}
+.rate-value{font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--emerald-light);}
+.bank-link{font-size:10px;color:var(--primary-light);margin-top:5px;display:block;}
+.news-item{margin:4px 9px;padding:9px 11px;background:var(--surface);border:1px solid var(--border);border-radius:9px;text-decoration:none;display:block;transition:all 0.15s;}
+.news-item:hover{border-color:var(--accent);transform:translateY(-1px);}
+.news-tag{display:inline-block;font-size:9px;padding:2px 6px;border-radius:99px;font-weight:700;letter-spacing:0.06em;margin-bottom:4px;text-transform:uppercase;}
+.tag-mortgage{background:rgba(79,70,229,0.2);color:var(--primary-light);}
+.tag-vehicle{background:rgba(16,185,129,0.2);color:var(--emerald-light);}
+.tag-personal{background:rgba(245,158,11,0.2);color:var(--accent);}
+.news-headline{font-size:12px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.news-meta{font-size:10px;color:var(--muted);}
+.news-source{color:var(--primary-light);font-weight:500;}
+.rbf-box{margin:6px 9px 9px;padding:10px 12px;background:linear-gradient(135deg,rgba(79,70,229,0.12),rgba(16,185,129,0.08));border:1px solid rgba(79,70,229,0.22);border-radius:9px;}
+.rbf-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
+.rbf-rate{font-size:19px;font-weight:700;font-family:'DM Mono',monospace;color:var(--primary-light);}
+.rbf-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.milestone{background:var(--surface-high);border-radius:10px;padding:13px;border:1px solid var(--border);}
+.milestone-year{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
+.milestone-val{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--emerald-light);}
+.milestone-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 
-  /* News Sidebar */
-  .news-sidebar {
-    width: 280px; flex-shrink: 0;
-    border-left: 1px solid var(--border);
-    background: var(--news-bg);
-    display: flex; flex-direction: column;
-    overflow-y: auto; max-height: calc(100vh - 70px);
-    position: sticky; top: 70px;
-  }
-  .news-section { border-bottom: 1px solid var(--border); }
-  .news-section-header {
-    padding: 14px 16px 10px;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--text);
-    display: flex; align-items: center; gap: 8px;
-    border-left: 3px solid var(--primary);
-    margin: 12px 12px 4px;
-    border-radius: 0 4px 4px 0;
-  }
-  .bank-card {
-    margin: 6px 12px; padding: 12px 14px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; text-decoration: none; display: block;
-    transition: all 0.15s;
-  }
-  .bank-card:hover { border-color: var(--primary); background: var(--surface-high); transform: translateY(-1px); }
-  .bank-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .bank-name { font-size: 13px; font-weight: 700; color: var(--text); }
-  .bank-badge {
-    font-size: 9px; padding: 2px 7px; border-radius: 99px;
-    background: var(--primary-dim); color: var(--primary-light);
-    border: 1px solid rgba(79,70,229,0.2); font-weight: 600; letter-spacing: 0.05em;
-  }
-  .rate-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px solid rgba(51,65,85,0.15); }
-  .rate-row:last-child { border-bottom: none; }
-  .rate-label { font-size: 11px; color: var(--muted); }
-  .rate-value { font-size: 12px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--emerald-light); }
-  :root.light .rate-value { color: var(--emerald); }
-  .bank-link { font-size: 10px; color: var(--primary-light); margin-top: 6px; display: block; }
-  :root.light .bank-link { color: var(--primary); }
+/* CALC PAGES */
+.calc-page{display:none;animation:fadeIn 0.25s ease;}.calc-page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-  .news-item {
-    margin: 6px 12px; padding: 11px 13px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; text-decoration: none; display: block;
-    transition: all 0.15s;
-  }
-  .news-item:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .news-tag {
-    display: inline-block; font-size: 9px; padding: 2px 7px; border-radius: 99px;
-    font-weight: 700; letter-spacing: 0.06em; margin-bottom: 5px;
-    text-transform: uppercase;
-  }
-  .tag-mortgage { background: rgba(79,70,229,0.2); color: var(--primary-light); }
-  .tag-vehicle { background: rgba(16,185,129,0.2); color: var(--emerald-light); }
-  :root.light .tag-vehicle { color: var(--emerald); }
-  .tag-personal { background: rgba(245,158,11,0.2); color: var(--accent); }
-  .tag-general { background: rgba(148,163,184,0.2); color: var(--muted); }
-  .news-headline { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; margin-bottom: 4px; }
-  .news-meta { font-size: 10px; color: var(--muted); }
-  .news-source { color: var(--primary-light); font-weight: 500; }
-  :root.light .news-source { color: var(--primary); }
-  .news-last { padding: 10px 12px 14px; }
-  .rbf-box {
-    margin: 6px 12px 12px; padding: 12px 14px;
-    background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(16,185,129,0.08));
-    border: 1px solid rgba(79,70,229,0.25); border-radius: 10px;
-  }
-  .rbf-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-  .rbf-rate { font-size: 22px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--primary-light); }
-  :root.light .rbf-rate { color: var(--primary); }
-  .rbf-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-  @media (max-width: 1200px) { .news-sidebar { display: none; } }
-  @media (max-width: 768px) {
-    .app-body { flex-direction: column; }
-    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 12px; border-right: none; border-bottom: 1px solid var(--border); gap: 12px; }
-    .nav-desc { display: none; }
-    .nav-item { padding: 10px; width: auto; flex-shrink: 0; }
-    .content { padding: 20px; }
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .topbar { padding: 0 16px; height: 60px; }
-  }
+/* RESPONSIVE */
+@media(max-width:1200px){.news-sidebar{display:none;}}
+@media(max-width:1024px){.calc-grid{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr 1fr;}}
+@media(max-width:768px){
+  .app-body{flex-direction:column;}
+  .sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:8px;border-right:none;border-bottom:1px solid var(--border);gap:6px;}
+  .nav-desc,.nav-divider{display:none;}.nav-item{padding:8px;width:auto;flex-shrink:0;}
+  .content{padding:14px;}.grid-2,.compare-grid{grid-template-columns:1fr;}
+  .topbar{padding:0 12px;height:56px;}.auth-card{padding:26px 20px;}
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-brand">
-    <div class="brand-icon">💰</div>
-    <div>
-      <div class="brand-name">Finance Calculator</div>
-      <div class="brand-sub">Fiji Financial Calculator Suite</div>
+<!-- ═══ AUTH SCREEN ═══ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">💰</div>
+      <div><div class="auth-logo-name">Finance Calculator</div><div class="auth-logo-sub">Fiji Financial Suite</div></div>
     </div>
-  </div>
-  <div class="topbar-right">
-    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
-    <div class="live-badge">LIVE CALC</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="authTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="authTab('register')">Create Account</button>
+    </div>
+    <!-- LOGIN -->
+    <div id="auth-login" class="auth-panel active">
+      <div class="auth-field"><label class="auth-label">Email Address</label><input class="auth-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="auth-field"><label class="auth-label">Password</label><input class="auth-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
+      <div class="auth-msg" id="login-msg"></div>
+      <div class="auth-divider">or</div>
+      <div style="text-align:center;font-size:13px;color:var(--muted)">Forgot password? <a href="#" onclick="doReset()" style="color:var(--primary-light)">Reset via email</a></div>
+    </div>
+    <!-- REGISTER -->
+    <div id="auth-register" class="auth-panel">
+      <div class="auth-field"><label class="auth-label">Full Name / Username</label><input class="auth-input" id="reg-name" type="text" placeholder="e.g. Sai Kumar" autocomplete="name"/></div>
+      <div class="auth-field"><label class="auth-label">Email Address</label><input class="auth-input" id="reg-email" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="auth-field"><label class="auth-label">Password <span style="color:var(--muted);font-size:10px;text-transform:none">(min. 8 chars)</span></label><input class="auth-input" id="reg-password" type="password" placeholder="Min. 8 characters" autocomplete="new-password"/></div>
+      <div class="auth-field"><label class="auth-label">Confirm Password</label><input class="auth-input" id="reg-confirm" type="password" placeholder="Repeat password" autocomplete="new-password"/></div>
+      <button class="auth-btn" id="reg-btn" onclick="doRegister()">Create Account & Verify Email →</button>
+      <div class="auth-msg" id="reg-msg"></div>
+      <div class="auth-verify-box" id="verify-box">
+        <div class="auth-verify-icon">📬</div>
+        <div class="auth-verify-title">Check Your Email!</div>
+        <div class="auth-verify-sub">A verification link has been sent.<br>Click it to activate your account, then sign in.</div>
+      </div>
+    </div>
+    <div class="auth-footer">By signing in you agree to our terms &amp; privacy policy.<br>Data stored securely via Supabase.</div>
   </div>
 </div>
 
-<div class="app-body">
-
-  <nav class="sidebar">
-    <button class="nav-item active" onclick="switchTab('mortgage', this)">
-      <div class="nav-icon">🏠</div>
-      <div><div class="nav-label">Mortgage</div><div class="nav-desc">Home Purchase Loan</div></div>
-    </button>
-    <button class="nav-item" onclick="switchTab('vehicle', this)">
-      <div class="nav-icon">🚗</div>
-      <div><div class="nav-label">Vehicle</div><div class="nav-desc">Auto Financing</div></div>
-    </button>
-    <button class="nav-item" onclick="switchTab('personal', this)">
-      <div class="nav-icon">💳</div>
-      <div><div class="nav-label">Personal Loan</div><div class="nav-desc">General Amortized</div></div>
-    </button>
-    <button class="nav-item" onclick="switchTab('savings', this)">
-      <div class="nav-icon">📈</div>
-      <div><div class="nav-label">Savings & Invest</div><div class="nav-desc">Compound Growth</div></div>
-    </button>
-  </nav>
-
-  <main class="content">
-
-    <div id="page-mortgage" class="calc-page active">
-      <div class="page-header">
-        <span class="page-header-icon">🏠</span>
-        <div>
-          <div class="page-title">Mortgage Calculator</div>
-          <div class="page-sub">Home Purchase Loan — adjust parameters to see real-time results</div>
-        </div>
-      </div>
-      <div class="calc-grid">
-        <div class="panel">
-          <div class="section-title">Loan Parameters</div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Home Price</span><input class="input-number" type="number" id="m-price" value="450000" oninput="syncSlider('m-price','ms-price');calcMortgage()"/></div>
-            <input type="range" id="ms-price" min="100000" max="2000000" step="5000" value="450000" oninput="syncInput('ms-price','m-price');calcMortgage()"/>
-            <div class="range-hints"><span>$100k</span><span>$2M</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Down Payment %</span><input class="input-number" type="number" id="m-down" value="20" oninput="syncSlider('m-down','ms-down');calcMortgage()"/></div>
-            <input type="range" id="ms-down" min="3" max="50" step="0.5" value="20" oninput="syncInput('ms-down','m-down');calcMortgage()"/>
-            <div class="range-hints"><span>3%</span><span>50%</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Interest Rate %</span><input class="input-number" type="number" id="m-rate" value="6.75" step="0.05" oninput="syncSlider('m-rate','ms-rate');calcMortgage()"/></div>
-            <input type="range" id="ms-rate" min="2" max="15" step="0.05" value="6.75" oninput="syncInput('ms-rate','m-rate');calcMortgage()"/>
-            <div class="range-hints"><span>2%</span><span>15%</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Loan Term (years)</span><input class="input-number" type="number" id="m-term" value="30" oninput="syncSlider('m-term','ms-term');calcMortgage()"/></div>
-            <input type="range" id="ms-term" min="5" max="30" step="5" value="30" oninput="syncInput('ms-term','m-term');calcMortgage()"/>
-            <div class="range-hints"><span>5 yrs</span><span>30 yrs</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Annual Property Tax</span><input class="input-number" type="number" id="m-tax" value="4500" oninput="syncSlider('m-tax','ms-tax');calcMortgage()"/></div>
-            <input type="range" id="ms-tax" min="0" max="30000" step="100" value="4500" oninput="syncInput('ms-tax','m-tax');calcMortgage()"/>
-            <div class="range-hints"><span>$0</span><span>$30k</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Annual Insurance</span><input class="input-number" type="number" id="m-ins" value="1800" oninput="syncSlider('m-ins','ms-ins');calcMortgage()"/></div>
-            <input type="range" id="ms-ins" min="0" max="10000" step="100" value="1800" oninput="syncInput('ms-ins','m-ins');calcMortgage()"/>
-            <div class="range-hints"><span>$0</span><span>$10k</span></div>
-          </div>
-        </div>
-
-        <div class="grid-col">
-          <div class="panel analysis-panel">
-            <div class="section-title">✨ Smart Analysis</div>
-            <div class="analysis-text" id="m-analysis"></div>
-          </div>
-
-          <div class="panel">
-            <div class="section-title">Monthly Breakdown</div>
-            <div class="stat-card accent" style="margin-bottom:16px">
-              <div class="stat-label">Principal & Interest Payment</div>
-              <div class="stat-value" id="m-out-pi">$2,484</div>
-            </div>
-            <div class="grid-2" style="gap:16px">
-              <div class="stat-card"><div class="stat-label">Total Monthly</div><div class="stat-value" id="m-out-total">$2,984</div></div>
-              <div class="stat-card"><div class="stat-label">Loan Amount</div><div class="stat-value" id="m-out-loan">$360,000</div></div>
-              <div class="stat-card"><div class="stat-label">Total Interest</div><div class="stat-value" id="m-out-interest">$534,407</div></div>
-              <div class="stat-card"><div class="stat-label">Total Cost</div><div class="stat-value" id="m-out-cost">$984,407</div></div>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="section-title">Amortization — Annual Overview</div>
-            <div class="chart-wrap"><canvas id="chart-mortgage" height="180"></canvas></div>
-          </div>
-        </div>
-      </div>
-      <div class="footer-note">ℹ️ Calculations are estimates for illustrative purposes only. Consult a licensed financial advisor before making financial decisions.</div>
+<!-- ═══ APP SCREEN ═══ -->
+<div id="app-screen">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">💰</div>
+      <div><div class="brand-name">Finance Calculator</div><div class="brand-sub">Fiji Financial Suite</div></div>
     </div>
-
-    <div id="page-vehicle" class="calc-page">
-      <div class="page-header">
-        <span class="page-header-icon">🚗</span>
-        <div>
-          <div class="page-title">Vehicle Loan Calculator</div>
-          <div class="page-sub">Auto Financing — adjust parameters to see real-time results</div>
-        </div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <div class="live-badge">LIVE CALC</div>
+      <div class="user-chip" onclick="doSignOut()" title="Sign out">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <span class="user-name" id="user-name-display">User</span>
+        <span style="font-size:11px;color:var(--muted);margin-left:1px">· out</span>
       </div>
-      <div class="calc-grid">
-        <div class="panel">
-          <div class="section-title">Vehicle Details</div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Vehicle Price</span><input class="input-number" type="number" id="v-price" value="35000" oninput="syncSlider('v-price','vs-price');calcVehicle()"/></div>
-            <input type="range" id="vs-price" min="5000" max="200000" step="500" value="35000" oninput="syncInput('vs-price','v-price');calcVehicle()"/>
-            <div class="range-hints"><span>$5k</span><span>$200k</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Trade-in Value</span><input class="input-number" type="number" id="v-tradein" value="5000" oninput="syncSlider('v-tradein','vs-tradein');calcVehicle()"/></div>
-            <input type="range" id="vs-tradein" min="0" max="50000" step="500" value="5000" oninput="syncInput('vs-tradein','v-tradein');calcVehicle()"/>
-            <div class="range-hints"><span>$0</span><span>$50k</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Down Payment</span><input class="input-number" type="number" id="v-down" value="3000" oninput="syncSlider('v-down','vs-down');calcVehicle()"/></div>
-            <input type="range" id="vs-down" min="0" max="50000" step="500" value="3000" oninput="syncInput('vs-down','v-down');calcVehicle()"/>
-            <div class="range-hints"><span>$0</span><span>$50k</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Sales Tax Rate %</span><input class="input-number" type="number" id="v-tax" value="7" step="0.25" oninput="syncSlider('v-tax','vs-tax');calcVehicle()"/></div>
-            <input type="range" id="vs-tax" min="0" max="15" step="0.25" value="7" oninput="syncInput('vs-tax','v-tax');calcVehicle()"/>
-            <div class="range-hints"><span>0%</span><span>15%</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Interest Rate %</span><input class="input-number" type="number" id="v-rate" value="5.9" step="0.1" oninput="syncSlider('v-rate','vs-rate');calcVehicle()"/></div>
-            <input type="range" id="vs-rate" min="1" max="25" step="0.1" value="5.9" oninput="syncInput('vs-rate','v-rate');calcVehicle()"/>
-            <div class="range-hints"><span>1%</span><span>25%</span></div>
-          </div>
-          <div class="input-group">
-            <div class="input-row"><span class="input-label">Loan Term (months)</span><input class="input-number" type="number" id="v-term" value="60" oninput="syncSlider('v-term','vs-term');calcVehicle()"/></div>
-            <input type="range" id="vs-term" min="12" max="84" step="12" value="60" oninput="syncInput('vs-term','v-term');calcVehicle()"/>
-            <div class="range-hints"><span>12 mo</span><span>84 mo</span></div>
-          </div>
-        </div>
-        <div class="grid-col">
-          <div class="panel analysis-panel">
-            <div class="section-title">✨ Smart Analysis</div>
-            <div class="analysis-text" id="v-analysis"></div>
-          </div>
-
-          <div class="panel">
-            <div class="section-title">Summary</div>
-            <div class="stat-card accent" style="margin-bottom:16px">
-              <div class="stat-label">Monthly Payment</div>
-              <div class="stat-value" id="v-out-monthly">$521</div>
-            </div>
-            <div class="grid-3">
-              <div class="stat-card"><div class="stat-label">Loan Amount</div><div class="stat-value" id="v-out-loan">$28,890</div></div>
-              <div class="stat-card"><div class="stat-label">Sales Tax</div><div class="stat-value" id="v-out-tax">$2,100</div></div>
-              <div class="stat-card"><div class="stat-label">Total Interest</div><div class="stat-value" id="v-out-interest">$4,374</div></div>
-            </div>
-          </div>
-          <div class="panel" style="flex:1">
-            <div class="section-title">Loan Balance Over Time</div>
-            <div class="chart-wrap"><canvas id="chart-vehicle" height="200"></canvas></div>
-          </div>
-        </div>
-      </div>
-      <div class="footer-note">ℹ️ Calculations are estimates for illustrative purposes only. Consult a licensed financial advisor before making financial decisions.</div>
     </div>
+  </div>
 
-    <div id="page-personal" class="calc-page">
-      <div class="page-header">
-        <span class="page-header-icon">💳</span>
-        <div>
-          <div class="page-title">Personal Loan Calculator</div>
-          <div class="page-sub">General Amortized Loan — adjust parameters to see real-time results</div>
-        </div>
-      </div>
-      <div class="calc-grid">
-        <div class="grid-col">
+  <div class="app-body">
+    <!-- Sidebar Nav -->
+    <nav class="sidebar">
+      <button class="nav-item active" onclick="switchTab('mortgage',this)"><div class="nav-icon">🏠</div><div><div class="nav-label">Mortgage</div><div class="nav-desc">Home Loan</div></div></button>
+      <button class="nav-item" onclick="switchTab('vehicle',this)"><div class="nav-icon">🚗</div><div><div class="nav-label">Vehicle</div><div class="nav-desc">Auto Financing</div></div></button>
+      <button class="nav-item" onclick="switchTab('personal',this)"><div class="nav-icon">💳</div><div><div class="nav-label">Personal Loan</div><div class="nav-desc">General Amortized</div></div></button>
+      <button class="nav-item" onclick="switchTab('savings',this)"><div class="nav-icon">📈</div><div><div class="nav-label">Savings & Invest</div><div class="nav-desc">Compound Growth</div></div></button>
+      <div class="nav-divider"></div>
+      <button class="nav-item" onclick="switchTab('saved',this)"><div class="nav-icon">💾</div><div><div class="nav-label">My Saved</div><div class="nav-desc">Calculations</div></div></button>
+      <button class="nav-item" onclick="switchTab('compare',this)"><div class="nav-icon">⚖️</div><div><div class="nav-label">Compare</div><div class="nav-desc">Side by Side</div></div></button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content">
+
+      <!-- MORTGAGE -->
+      <div id="page-mortgage" class="calc-page active">
+        <div class="page-header"><span class="page-header-icon">🏠</span><div><div class="page-title">Mortgage Calculator</div><div class="page-sub">Home Purchase Loan — real-time results in FJD</div></div></div>
+        <div class="save-bar"><span style="font-size:13px;color:var(--muted);white-space:nowrap">💾 Save:</span><input type="text" id="m-save-label" placeholder="Name this calc (e.g. Dream Home 2025)"/><button class="btn btn-primary btn-sm" onclick="saveCalc('mortgage')">Save</button></div>
+        <div class="calc-grid">
           <div class="panel">
             <div class="section-title">Loan Parameters</div>
-            <div class="input-group">
-              <div class="input-row"><span class="input-label">Loan Amount</span><input class="input-number" type="number" id="p-amount" value="15000" oninput="syncSlider('p-amount','ps-amount');calcPersonal()"/></div>
-              <input type="range" id="ps-amount" min="1000" max="100000" step="500" value="15000" oninput="syncInput('ps-amount','p-amount');calcPersonal()"/>
-              <div class="range-hints"><span>$1k</span><span>$100k</span></div>
-            </div>
-            <div class="input-group">
-              <div class="input-row"><span class="input-label">Annual Interest Rate %</span><input class="input-number" type="number" id="p-rate" value="11.5" step="0.25" oninput="syncSlider('p-rate','ps-rate');calcPersonal()"/></div>
-              <input type="range" id="ps-rate" min="1" max="36" step="0.25" value="11.5" oninput="syncInput('ps-rate','p-rate');calcPersonal()"/>
-              <div class="range-hints"><span>1%</span><span>36%</span></div>
-            </div>
-            <div class="input-group">
-              <div class="input-row"><span class="input-label">Loan Term (months)</span><input class="input-number" type="number" id="p-term" value="36" oninput="syncSlider('p-term','ps-term');calcPersonal()"/></div>
-              <input type="range" id="ps-term" min="6" max="84" step="6" value="36" oninput="syncInput('ps-term','p-term');calcPersonal()"/>
-              <div class="range-hints"><span>6 mo</span><span>84 mo</span></div>
-            </div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Home Price</span><input class="input-number" type="number" id="m-price" value="450000" oninput="syncSlider('m-price','ms-price');calcMortgage()"/></div><input type="range" id="ms-price" min="100000" max="2000000" step="5000" value="450000" oninput="syncInput('ms-price','m-price');calcMortgage()"/><div class="range-hints"><span>$100k</span><span>$2M</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Down Payment %</span><input class="input-number" type="number" id="m-down" value="20" oninput="syncSlider('m-down','ms-down');calcMortgage()"/></div><input type="range" id="ms-down" min="3" max="50" step="0.5" value="20" oninput="syncInput('ms-down','m-down');calcMortgage()"/><div class="range-hints"><span>3%</span><span>50%</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Interest Rate %</span><input class="input-number" type="number" id="m-rate" value="6.49" step="0.05" oninput="syncSlider('m-rate','ms-rate');calcMortgage()"/></div><input type="range" id="ms-rate" min="2" max="15" step="0.05" value="6.49" oninput="syncInput('ms-rate','m-rate');calcMortgage()"/><div class="range-hints"><span>2%</span><span>15%</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Loan Term (years)</span><input class="input-number" type="number" id="m-term" value="30" oninput="syncSlider('m-term','ms-term');calcMortgage()"/></div><input type="range" id="ms-term" min="5" max="30" step="5" value="30" oninput="syncInput('ms-term','m-term');calcMortgage()"/><div class="range-hints"><span>5 yrs</span><span>30 yrs</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Annual Property Tax</span><input class="input-number" type="number" id="m-tax" value="4500" oninput="syncSlider('m-tax','ms-tax');calcMortgage()"/></div><input type="range" id="ms-tax" min="0" max="30000" step="100" value="4500" oninput="syncInput('ms-tax','m-tax');calcMortgage()"/><div class="range-hints"><span>$0</span><span>$30k</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Annual Insurance</span><input class="input-number" type="number" id="m-ins" value="1800" oninput="syncSlider('m-ins','ms-ins');calcMortgage()"/></div><input type="range" id="ms-ins" min="0" max="10000" step="100" value="1800" oninput="syncInput('ms-ins','m-ins');calcMortgage()"/><div class="range-hints"><span>$0</span><span>$10k</span></div></div>
           </div>
-
-          <div class="panel analysis-panel">
-            <div class="section-title">✨ Smart Analysis</div>
-            <div class="analysis-text" id="p-analysis"></div>
+          <div class="grid-col">
+            <div class="panel analysis-panel"><div class="section-title">✨ Smart Analysis</div><div class="analysis-text" id="m-analysis">Adjust sliders to see analysis.</div></div>
+            <div class="panel">
+              <div class="section-title">Monthly Breakdown</div>
+              <div class="stat-card accent" style="margin-bottom:13px"><div class="stat-label">Principal & Interest Payment</div><div class="stat-value" id="m-out-pi">—</div></div>
+              <div class="grid-2" style="gap:10px"><div class="stat-card"><div class="stat-label">Total Monthly</div><div class="stat-value" id="m-out-total">—</div></div><div class="stat-card"><div class="stat-label">Loan Amount</div><div class="stat-value" id="m-out-loan">—</div></div><div class="stat-card"><div class="stat-label">Total Interest</div><div class="stat-value" id="m-out-interest">—</div></div><div class="stat-card"><div class="stat-label">Total Cost</div><div class="stat-value" id="m-out-cost">—</div></div></div>
+            </div>
+            <div class="panel"><div class="section-title">Annual Amortization</div><div class="chart-wrap"><canvas id="chart-mortgage" height="190"></canvas></div></div>
           </div>
+        </div>
+        <div class="footer-note">ℹ️ Rate pre-filled from ANZ Fiji (Dec 2025). Verify with your bank before committing. All amounts FJD.</div>
+      </div>
 
+      <!-- VEHICLE -->
+      <div id="page-vehicle" class="calc-page">
+        <div class="page-header"><span class="page-header-icon">🚗</span><div><div class="page-title">Vehicle Loan Calculator</div><div class="page-sub">Auto Financing — real-time results in FJD</div></div></div>
+        <div class="save-bar"><span style="font-size:13px;color:var(--muted);white-space:nowrap">💾 Save:</span><input type="text" id="v-save-label" placeholder="Name this calc (e.g. Toyota Hilux 2025)"/><button class="btn btn-primary btn-sm" onclick="saveCalc('vehicle')">Save</button></div>
+        <div class="calc-grid">
           <div class="panel">
-            <div class="section-title">Results</div>
-            <div class="stat-card accent" style="margin-bottom:16px">
-              <div class="stat-label">Monthly Payment</div>
-              <div class="stat-value" id="p-out-monthly">$493</div>
+            <div class="section-title">Vehicle Details</div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Vehicle Price</span><input class="input-number" type="number" id="v-price" value="35000" oninput="syncSlider('v-price','vs-price');calcVehicle()"/></div><input type="range" id="vs-price" min="5000" max="200000" step="500" value="35000" oninput="syncInput('vs-price','v-price');calcVehicle()"/><div class="range-hints"><span>$5k</span><span>$200k</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Trade-in Value</span><input class="input-number" type="number" id="v-tradein" value="5000" oninput="syncSlider('v-tradein','vs-tradein');calcVehicle()"/></div><input type="range" id="vs-tradein" min="0" max="50000" step="500" value="5000" oninput="syncInput('vs-tradein','v-tradein');calcVehicle()"/><div class="range-hints"><span>$0</span><span>$50k</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Down Payment</span><input class="input-number" type="number" id="v-down" value="3000" oninput="syncSlider('v-down','vs-down');calcVehicle()"/></div><input type="range" id="vs-down" min="0" max="50000" step="500" value="3000" oninput="syncInput('vs-down','v-down');calcVehicle()"/><div class="range-hints"><span>$0</span><span>$50k</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Sales Tax %</span><input class="input-number" type="number" id="v-tax" value="9" step="0.25" oninput="syncSlider('v-tax','vs-tax');calcVehicle()"/></div><input type="range" id="vs-tax" min="0" max="20" step="0.25" value="9" oninput="syncInput('vs-tax','v-tax');calcVehicle()"/><div class="range-hints"><span>0%</span><span>20%</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Interest Rate %</span><input class="input-number" type="number" id="v-rate" value="8.45" step="0.1" oninput="syncSlider('v-rate','vs-rate');calcVehicle()"/></div><input type="range" id="vs-rate" min="1" max="25" step="0.1" value="8.45" oninput="syncInput('vs-rate','v-rate');calcVehicle()"/><div class="range-hints"><span>1%</span><span>25%</span></div></div>
+            <div class="input-group"><div class="input-row"><span class="input-label">Loan Term (months)</span><input class="input-number" type="number" id="v-term" value="60" oninput="syncSlider('v-term','vs-term');calcVehicle()"/></div><input type="range" id="vs-term" min="12" max="84" step="12" value="60" oninput="syncInput('vs-term','v-term');calcVehicle()"/><div class="range-hints"><span>12 mo</span><span>84 mo</span></div></div>
+          </div>
+          <div class="grid-col">
+            <div class="panel analysis-panel"><div class="section-title">✨ Smart Analysis</div><div class="analysis-text" id="v-analysis">Adjust sliders to see analysis.</div></div>
+            <div class="panel">
+              <div class="section-title">Summary</div>
+              <div class="stat-card accent" style="margin-bottom:11px"><div class="stat-label">Monthly Payment</div><div class="stat-value" id="v-out-monthly">—</div></div>
+              <div class="grid-3"><div class="stat-card"><div class="stat-label">Loan Amount</div><div class="stat-value" id="v-out-loan">—</div></div><div class="stat-card"><div class="stat-label">Sales Tax</div><div class="stat-value" id="v-out-tax">—</div></div><div class="stat-card"><div class="stat-label">Total Interest</div><div class="stat-value" id="v-out-interest">—</div></div></div>
             </div>
-            <div class="grid-2" style="gap:16px;margin-bottom:20px">
-              <div class="stat-card"><div class="stat-label">Total Interest</div><div class="stat-value" id="p-out-interest">$2,741</div></div>
-              <div class="stat-card"><div class="stat-label">Total Paid</div><div class="stat-value" id="p-out-total">$17,741</div></div>
-            </div>
-            <div style="padding:18px;background:var(--slate);border-radius:12px;border:1px solid var(--border)">
-              <div style="color:var(--muted);font-size:13px;margin-bottom:8px">Interest as % of Loan</div>
-              <div class="progress-bar-wrap"><div class="progress-bar-fill" id="p-out-bar" style="width:18%"></div></div>
-              <div style="color:var(--primary-light);font-size:14px;margin-top:8px;font-family:'DM Mono',monospace" id="p-out-pct">18.3%</div>
-            </div>
+            <div class="panel"><div class="section-title">Loan Balance Over Time</div><div class="chart-wrap"><canvas id="chart-vehicle" height="190"></canvas></div></div>
           </div>
         </div>
-        <div class="panel">
-          <div class="section-title">Monthly Amortization</div>
-          <div class="chart-wrap"><canvas id="chart-personal" height="240"></canvas></div>
-          <div class="amort-table-wrap">
-            <table>
-              <thead><tr><th>Mo</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
-              <tbody id="p-table"></tbody>
-            </table>
-          </div>
-        </div>
+        <div class="footer-note">ℹ️ Rate pre-filled from ANZ Fiji car loan (Dec 2025). Fiji VAT is 15% — adjust to your actual tax. All amounts FJD.</div>
       </div>
-      <div class="footer-note">ℹ️ Calculations are estimates for illustrative purposes only. Consult a licensed financial advisor before making financial decisions.</div>
-    </div>
 
-    <div id="page-savings" class="calc-page">
-      <div class="page-header">
-        <span class="page-header-icon">📈</span>
-        <div>
-          <div class="page-title">Savings & Investment Calculator</div>
-          <div class="page-sub">Compound Growth — adjust parameters to see real-time results</div>
-        </div>
-      </div>
-      <div class="calc-grid">
-        <div class="grid-col">
+      <!-- PERSONAL -->
+      <div id="page-personal" class="calc-page">
+        <div class="page-header"><span class="page-header-icon">💳</span><div><div class="page-title">Personal Loan Calculator</div><div class="page-sub">General Amortized Loan — real-time results in FJD</div></div></div>
+        <div class="save-bar"><span style="font-size:13px;color:var(--muted);white-space:nowrap">💾 Save:</span><input type="text" id="p-save-label" placeholder="Name this calc (e.g. Home Renovation)"/><button class="btn btn-primary btn-sm" onclick="saveCalc('personal')">Save</button></div>
+        <div class="calc-grid">
+          <div class="grid-col">
+            <div class="panel">
+              <div class="section-title">Loan Parameters</div>
+              <div class="input-group"><div class="input-row"><span class="input-label">Loan Amount</span><input class="input-number" type="number" id="p-amount" value="15000" oninput="syncSlider('p-amount','ps-amount');calcPersonal()"/></div><input type="range" id="ps-amount" min="1000" max="100000" step="500" value="15000" oninput="syncInput('ps-amount','p-amount');calcPersonal()"/><div class="range-hints"><span>$1k</span><span>$100k</span></div></div>
+              <div class="input-group"><div class="input-row"><span class="input-label">Annual Interest Rate %</span><input class="input-number" type="number" id="p-rate" value="10.5" step="0.25" oninput="syncSlider('p-rate','ps-rate');calcPersonal()"/></div><input type="range" id="ps-rate" min="1" max="36" step="0.25" value="10.5" oninput="syncInput('ps-rate','p-rate');calcPersonal()"/><div class="range-hints"><span>1%</span><span>36%</span></div></div>
+              <div class="input-group"><div class="input-row"><span class="input-label">Loan Term (months)</span><input class="input-number" type="number" id="p-term" value="36" oninput="syncSlider('p-term','ps-term');calcPersonal()"/></div><input type="range" id="ps-term" min="6" max="84" step="6" value="36" oninput="syncInput('ps-term','p-term');calcPersonal()"/><div class="range-hints"><span>6 mo</span><span>84 mo</span></div></div>
+            </div>
+            <div class="panel">
+              <div class="section-title">Results</div>
+              <div class="stat-card accent" style="margin-bottom:11px"><div class="stat-label">Monthly Payment</div><div class="stat-value" id="p-out-monthly">—</div></div>
+              <div class="grid-2" style="gap:11px;margin-bottom:13px"><div class="stat-card"><div class="stat-label">Total Interest</div><div class="stat-value" id="p-out-interest">—</div></div><div class="stat-card"><div class="stat-label">Total Paid</div><div class="stat-value" id="p-out-total">—</div></div></div>
+              <div style="padding:12px;background:var(--slate);border-radius:9px;border:1px solid var(--border)"><div style="color:var(--muted);font-size:12px;margin-bottom:5px">Interest as % of Loan</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="p-out-bar" style="width:0%"></div></div><div style="color:var(--primary-light);font-size:13px;margin-top:4px;font-family:'DM Mono',monospace" id="p-out-pct">0%</div></div>
+            </div>
+            <div class="panel analysis-panel"><div class="section-title">✨ Smart Analysis</div><div class="analysis-text" id="p-analysis">Adjust sliders to see analysis.</div></div>
+          </div>
           <div class="panel">
-            <div class="section-title">Investment Parameters</div>
-            <div class="input-group">
-              <div class="input-row"><span class="input-label">Initial Deposit</span><input class="input-number" type="number" id="s-initial" value="10000" oninput="syncSlider('s-initial','ss-initial');calcSavings()"/></div>
-              <input type="range" id="ss-initial" min="0" max="500000" step="1000" value="10000" oninput="syncInput('ss-initial','s-initial');calcSavings()"/>
-              <div class="range-hints"><span>$0</span><span>$500k</span></div>
-            </div>
-            <div class="input-group">
-              <div class="input-row"><span class="input-label">Monthly Contribution</span><input class="input-number" type="number" id="s-monthly" value="500" oninput="syncSlider('s-monthly','ss-monthly');calcSavings()"/></div>
-              <input type="range" id="ss-monthly" min="0" max="10000" step="50" value="500" oninput="syncInput('ss-monthly','s-monthly');calcSavings()"/>
-              <div class="range-hints"><span>$0</span><span>$10k</span></div>
-            </div>
-            <div class="input-group">
-              <div class="input-row"><span class="input-label">Annual Return Rate %</span><input class="input-number" type="number" id="s-rate" value="8" step="0.25" oninput="syncSlider('s-rate','ss-rate');calcSavings()"/></div>
-              <input type="range" id="ss-rate" min="1" max="20" step="0.25" value="8" oninput="syncInput('ss-rate','s-rate');calcSavings()"/>
-              <div class="range-hints"><span>1%</span><span>20%</span></div>
-            </div>
-            <div class="input-group">
-              <div class="input-row"><span class="input-label">Time Horizon (years)</span><input class="input-number" type="number" id="s-years" value="20" oninput="syncSlider('s-years','ss-years');calcSavings()"/></div>
-              <input type="range" id="ss-years" min="1" max="50" step="1" value="20" oninput="syncInput('ss-years','s-years');calcSavings()"/>
-              <div class="range-hints"><span>1 yr</span><span>50 yrs</span></div>
-            </div>
-            <div>
-              <div class="input-label" style="margin-bottom:8px">Compound Frequency</div>
-              <div class="toggle-group">
-                <button class="toggle-btn active" id="freq-monthly" onclick="setFreq('monthly')">Monthly</button>
-                <button class="toggle-btn" id="freq-annually" onclick="setFreq('annually')">Annually</button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="panel analysis-panel">
-            <div class="section-title">✨ Smart Analysis</div>
-            <div class="analysis-text" id="s-analysis"></div>
-          </div>
-
-          <div class="panel">
-            <div class="section-title">Outcome</div>
-            <div class="stat-card accent" style="margin-bottom:16px">
-              <div class="stat-label">Final Portfolio Value</div>
-              <div class="stat-value" id="s-out-final">$589,020</div>
-            </div>
-            <div class="grid-2" style="gap:16px;margin-bottom:16px">
-              <div class="stat-card"><div class="stat-label">Total Invested</div><div class="stat-value" id="s-out-contrib">$130,000</div></div>
-              <div class="stat-card"><div class="stat-label">Total Growth</div><div class="stat-value" id="s-out-growth" style="color:var(--emerald-light)">$459,020</div></div>
-            </div>
-            <div id="s-milestones" class="grid-3" style="gap:12px"></div>
+            <div class="section-title">Monthly Amortization</div>
+            <div class="chart-wrap"><canvas id="chart-personal" height="210"></canvas></div>
+            <div class="amort-table-wrap"><table><thead><tr><th>Mo</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead><tbody id="p-table"></tbody></table></div>
           </div>
         </div>
-        <div class="panel">
-          <div class="section-title">Wealth Growth Projection</div>
-          <div class="chart-wrap"><canvas id="chart-savings" height="300"></canvas></div>
-        </div>
+        <div class="footer-note">ℹ️ Rate pre-filled from ANZ Fiji secured personal loan (Dec 2025). All amounts FJD.</div>
       </div>
-      <div class="footer-note">ℹ️ Calculations are estimates for illustrative purposes only. Consult a licensed financial advisor before making financial decisions.</div>
-    </div>
 
-  </main>
-
-  <!-- ═══ NEWS SIDEBAR ═══ -->
-  <aside class="news-sidebar">
-
-    <!-- RBF Base Rate -->
-    <div style="padding:14px 12px 0">
-      <div class="rbf-box">
-        <div class="rbf-label">🏦 RBF Base Lending Rate</div>
-        <div class="rbf-rate">1.67%</div>
-        <div class="rbf-sub">p.a. — Q1 2025 · Reserve Bank of Fiji</div>
+      <!-- SAVINGS -->
+      <div id="page-savings" class="calc-page">
+        <div class="page-header"><span class="page-header-icon">📈</span><div><div class="page-title">Savings & Investment Calculator</div><div class="page-sub">Compound Growth — real-time projection in FJD</div></div></div>
+        <div class="save-bar"><span style="font-size:13px;color:var(--muted);white-space:nowrap">💾 Save:</span><input type="text" id="s-save-label" placeholder="Name this scenario (e.g. Retirement Fund 2045)"/><button class="btn btn-primary btn-sm" onclick="saveCalc('savings')">Save</button></div>
+        <div class="calc-grid">
+          <div class="grid-col">
+            <div class="panel">
+              <div class="section-title">Investment Parameters</div>
+              <div class="input-group"><div class="input-row"><span class="input-label">Initial Deposit</span><input class="input-number" type="number" id="s-initial" value="10000" oninput="syncSlider('s-initial','ss-initial');calcSavings()"/></div><input type="range" id="ss-initial" min="0" max="500000" step="1000" value="10000" oninput="syncInput('ss-initial','s-initial');calcSavings()"/><div class="range-hints"><span>$0</span><span>$500k</span></div></div>
+              <div class="input-group"><div class="input-row"><span class="input-label">Monthly Contribution</span><input class="input-number" type="number" id="s-monthly" value="500" oninput="syncSlider('s-monthly','ss-monthly');calcSavings()"/></div><input type="range" id="ss-monthly" min="0" max="10000" step="50" value="500" oninput="syncInput('ss-monthly','s-monthly');calcSavings()"/><div class="range-hints"><span>$0</span><span>$10k</span></div></div>
+              <div class="input-group"><div class="input-row"><span class="input-label">Annual Return Rate %</span><input class="input-number" type="number" id="s-rate" value="8" step="0.25" oninput="syncSlider('s-rate','ss-rate');calcSavings()"/></div><input type="range" id="ss-rate" min="1" max="20" step="0.25" value="8" oninput="syncInput('ss-rate','s-rate');calcSavings()"/><div class="range-hints"><span>1%</span><span>20%</span></div></div>
+              <div class="input-group"><div class="input-row"><span class="input-label">Time Horizon (years)</span><input class="input-number" type="number" id="s-years" value="20" oninput="syncSlider('s-years','ss-years');calcSavings()"/></div><input type="range" id="ss-years" min="1" max="50" step="1" value="20" oninput="syncInput('ss-years','s-years');calcSavings()"/><div class="range-hints"><span>1 yr</span><span>50 yrs</span></div></div>
+              <div><div class="input-label" style="margin-bottom:6px">Compound Frequency</div><div class="toggle-group"><button class="toggle-btn active" id="freq-monthly" onclick="setFreq('monthly')">Monthly</button><button class="toggle-btn" id="freq-annually" onclick="setFreq('annually')">Annually</button></div></div>
+            </div>
+            <div class="panel analysis-panel"><div class="section-title">✨ Smart Analysis</div><div class="analysis-text" id="s-analysis">Adjust sliders to see analysis.</div></div>
+            <div class="panel">
+              <div class="section-title">Outcome</div>
+              <div class="stat-card accent" style="margin-bottom:11px"><div class="stat-label">Final Portfolio Value</div><div class="stat-value" id="s-out-final">—</div></div>
+              <div class="grid-2" style="gap:11px;margin-bottom:13px"><div class="stat-card"><div class="stat-label">Total Invested</div><div class="stat-value" id="s-out-contrib">—</div></div><div class="stat-card"><div class="stat-label">Total Growth</div><div class="stat-value" id="s-out-growth" style="color:var(--emerald-light)">—</div></div></div>
+              <div id="s-milestones" class="grid-3" style="gap:9px"></div>
+            </div>
+          </div>
+          <div class="panel"><div class="section-title">Wealth Growth Projection</div><div class="chart-wrap"><canvas id="chart-savings" height="330"></canvas></div></div>
+        </div>
+        <div class="footer-note">ℹ️ Illustrative only. Past performance is not indicative of future returns. All amounts FJD.</div>
       </div>
-    </div>
 
-    <!-- LOCAL BANK RATES -->
-    <div class="news-section">
-      <div class="news-section-header">🏛️ Local Bank Rates</div>
-
-      <!-- ANZ -->
-      <a class="bank-card" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank">
-        <div class="bank-card-header">
-          <span class="bank-name">ANZ Fiji</span>
-          <span class="bank-badge">DEC 2025</span>
+      <!-- SAVED -->
+      <div id="page-saved" class="calc-page">
+        <div class="page-header"><span class="page-header-icon">💾</span><div><div class="page-title">My Saved Calculations</div><div class="page-sub">All your saved scenarios — load, compare, share or export to PDF</div></div></div>
+        <div style="display:flex;gap:9px;margin-bottom:18px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-outline" onclick="loadSaved()">🔄 Refresh</button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="filter-btns">
+            <button class="btn btn-outline btn-sm" style="border-color:var(--primary)" onclick="filterSaved('all',this)">All</button>
+            <button class="btn btn-outline btn-sm" onclick="filterSaved('mortgage',this)">🏠 Mortgage</button>
+            <button class="btn btn-outline btn-sm" onclick="filterSaved('vehicle',this)">🚗 Vehicle</button>
+            <button class="btn btn-outline btn-sm" onclick="filterSaved('personal',this)">💳 Personal</button>
+            <button class="btn btn-outline btn-sm" onclick="filterSaved('savings',this)">📈 Savings</button>
+          </div>
         </div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (Variable)</span><span class="rate-value">6.49%</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (1yr Fixed)</span><span class="rate-value">3.95%</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (2yr Fixed)</span><span class="rate-value">4.95%</span></div>
-        <div class="rate-row"><span class="rate-label">🚗 Car Loan</span><span class="rate-value">8.45%</span></div>
-        <div class="rate-row"><span class="rate-label">💳 Personal (Secured)</span><span class="rate-value">10.50%</span></div>
-        <div class="rate-row"><span class="rate-label">💳 Personal (Unsecured)</span><span class="rate-value">16.50%</span></div>
-        <span class="bank-link">→ View full rates at anz.com/fiji</span>
-      </a>
+        <div id="saved-list-container"><div style="text-align:center;color:var(--muted);padding:60px 20px;font-size:14px">Loading your saved calculations...</div></div>
+      </div>
 
-      <!-- Westpac -->
-      <a class="bank-card" href="https://www.westpac.com.fj/" target="_blank">
-        <div class="bank-card-header">
-          <span class="bank-name">Westpac Fiji</span>
-          <span class="bank-badge">JAN 2026</span>
+      <!-- COMPARE -->
+      <div id="page-compare" class="calc-page">
+        <div class="page-header"><span class="page-header-icon">⚖️</span><div><div class="page-title">Compare Scenarios</div><div class="page-sub">Select two saved calculations to compare side by side</div></div></div>
+        <div class="compare-selector">
+          <select id="compare-a"><option value="">— Select Scenario A —</option></select>
+          <select id="compare-b"><option value="">— Select Scenario B —</option></select>
+          <button class="btn btn-primary" onclick="runCompare()">⚖️ Compare</button>
+          <button class="btn btn-outline" onclick="exportComparePDF()">📄 Export PDF</button>
         </div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (1yr Fixed)</span><span class="rate-value">4.75%</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (2yr Fixed)</span><span class="rate-value">5.45%</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (Variable)</span><span class="rate-value">7.49%</span></div>
-        <div class="rate-row"><span class="rate-label">🚗 Vehicle (1yr Fixed)</span><span class="rate-value">4.75%</span></div>
-        <div class="rate-row"><span class="rate-label">🚗 Vehicle (Variable)</span><span class="rate-value">6.49%</span></div>
-        <div class="rate-row"><span class="rate-label">💳 Personal (Secured)</span><span class="rate-value">10.45%</span></div>
-        <div class="rate-row"><span class="rate-label">💳 Personal (Unsecured)</span><span class="rate-value">16.50%</span></div>
-        <span class="bank-link">→ View full rates at westpac.com.fj</span>
-      </a>
+        <div id="compare-output"><div class="compare-empty">Select two saved calculations above and click Compare.</div></div>
+      </div>
 
-      <!-- BSP -->
-      <a class="bank-card" href="https://www.bsp.com.fj/help/indicated-lending-rates/" target="_blank">
-        <div class="bank-card-header">
-          <span class="bank-name">BSP Fiji</span>
-          <span class="bank-badge">2025</span>
-        </div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (EasyHome)</span><span class="rate-value">Contact BSP</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (1yr Fixed)</span><span class="rate-value">4.10%</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 Home Loan (2yr Fixed)</span><span class="rate-value">4.90%</span></div>
-        <div class="rate-row"><span class="rate-label">🚗 Motor Vehicle</span><span class="rate-value">Contact BSP</span></div>
-        <div class="rate-row"><span class="rate-label">💳 Personal (Secured)</span><span class="rate-value">Contact BSP</span></div>
-        <span class="bank-link">→ View full rates at bsp.com.fj</span>
-      </a>
+    </main>
 
-      <!-- HFC -->
-      <a class="bank-card" href="https://www.hfc.com.fj/current-interest-rates-3/" target="_blank">
-        <div class="bank-card-header">
-          <span class="bank-name">HFC Bank</span>
-          <span class="bank-badge">2025</span>
-        </div>
-        <div class="rate-row"><span class="rate-label">🏠 Super Dream Home</span><span class="rate-value">Competitive</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 Dream Home Package</span><span class="rate-value">Competitive</span></div>
-        <div class="rate-row"><span class="rate-label">🚗 Motor Vehicle</span><span class="rate-value">Contact HFC</span></div>
-        <div class="rate-row"><span class="rate-label">💳 Personal Loan</span><span class="rate-value">Contact HFC</span></div>
-        <span class="bank-link">→ View full rates at hfc.com.fj</span>
-      </a>
-
-      <!-- FDB -->
-      <a class="bank-card" href="https://www.fdb.com.fj/" target="_blank">
-        <div class="bank-card-header">
-          <span class="bank-name">FDB (Fiji Dev. Bank)</span>
-          <span class="bank-badge">2025</span>
-        </div>
-        <div class="rate-row"><span class="rate-label">🏠 Choice Home Loan</span><span class="rate-value">from 3.99%</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 No internal fees</span><span class="rate-value">First 6 mo</span></div>
-        <div class="rate-row"><span class="rate-label">👤 Focus: Youth/Women/Rural</span><span class="rate-value">✓</span></div>
-        <span class="bank-link">→ View products at fdb.com.fj</span>
-      </a>
-
-      <!-- Merchant Finance -->
-      <a class="bank-card" href="https://merchantfinance.com.fj/" target="_blank">
-        <div class="bank-card-header">
-          <span class="bank-name">Merchant Finance</span>
-          <span class="bank-badge">2025</span>
-        </div>
-        <div class="rate-row"><span class="rate-label">🏠 Zero-Deposit Home Loan</span><span class="rate-value">✓ Available</span></div>
-        <div class="rate-row"><span class="rate-label">🏠 Up to 90% financing</span><span class="rate-value">Construction</span></div>
-        <div class="rate-row"><span class="rate-label">🚗 Motor Vehicle</span><span class="rate-value">Contact MFL</span></div>
-        <span class="bank-link">→ View products at merchantfinance.com.fj</span>
-      </a>
-    </div>
-
-    <!-- FIJI LOAN NEWS -->
-    <div class="news-section">
-      <div class="news-section-header">📰 Fiji Loan News</div>
-
-      <a class="news-item" href="https://www.fbcnews.com.fj/news/new-loan-products-to-boost-homes-and-businesses/" target="_blank">
-        <span class="news-tag tag-mortgage">Mortgage</span>
-        <div class="news-headline">FDB launches Choice Home Loan with rates from 3.99% — targets youth, women & rural communities</div>
-        <div class="news-meta"><span class="news-source">FBC News</span> · 2025</div>
-      </a>
-
-      <a class="news-item" href="https://www.fijivillage.com/news/Zero-dollar-deposit-on-home-loans-from-Merchant-Finance-f8xr45/" target="_blank">
-        <span class="news-tag tag-mortgage">Mortgage</span>
-        <div class="news-headline">Merchant Finance launches zero-deposit home loan — first of its kind in Fiji market</div>
-        <div class="news-meta"><span class="news-source">Fijivillage</span> · 2025</div>
-      </a>
-
-      <a class="news-item" href="https://www.fijitimes.com.fj/new-housing-loan/" target="_blank">
-        <span class="news-tag tag-mortgage">Mortgage</span>
-        <div class="news-headline">BSP introduces new housing loan with 1-yr fixed rate of 4.10% p.a. to stimulate real estate sector</div>
-        <div class="news-meta"><span class="news-source">Fiji Times</span> · 2023</div>
-      </a>
-
-      <a class="news-item" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank">
-        <span class="news-tag tag-vehicle">Vehicle</span>
-        <div class="news-headline">ANZ Fiji car loan rate at 8.45% p.a. — among the most competitive vehicle financing rates in Fiji</div>
-        <div class="news-meta"><span class="news-source">ANZ Fiji</span> · Dec 2025</div>
-      </a>
-
-      <a class="news-item" href="https://www.westpac.com.fj/content/dam/public/fiji/documents/Westpac_Fiji_Published_Interest_Rates.pdf" target="_blank">
-        <span class="news-tag tag-vehicle">Vehicle</span>
-        <div class="news-headline">Westpac Fiji vehicle loan 1-yr fixed rate drops to 4.75% — updated Jan 2026 rate sheet</div>
-        <div class="news-meta"><span class="news-source">Westpac Fiji</span> · Jan 2026</div>
-      </a>
-
-      <a class="news-item" href="https://www.kontikifinance.com/" target="_blank">
-        <span class="news-tag tag-personal">Personal</span>
-        <div class="news-headline">Kontiki Finance offers flexible debt consolidation & vehicle loans with fixed rates and fast approvals</div>
-        <div class="news-meta"><span class="news-source">Kontiki Finance</span> · 2025</div>
-      </a>
-
-      <a class="news-item" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank">
-        <span class="news-tag tag-personal">Personal</span>
-        <div class="news-headline">ANZ Fiji personal loan rates: secured 10.50%, unsecured 16.50% — current from Dec 2025</div>
-        <div class="news-meta"><span class="news-source">ANZ Fiji</span> · Dec 2025</div>
-      </a>
-
-      <a class="news-item" href="https://www.bankofbaroda-fiji.com/personal-banking/retail-loans/baroda-car-loans" target="_blank">
-        <span class="news-tag tag-vehicle">Vehicle</span>
-        <div class="news-headline">Bank of Baroda Fiji offers Baroda Car Loan for Fiji citizens — repayments capped at 60% of net salary</div>
-        <div class="news-meta"><span class="news-source">Bank of Baroda</span> · 2025</div>
-      </a>
-
-    </div>
-
-    <div class="news-last" style="text-align:center;color:var(--muted);font-size:11px;padding:14px 12px;">
-      ⚠️ Rates are indicative only. Verify directly with each bank before applying. All amounts in FJD.
-    </div>
-
-  </aside>
-
+    <!-- News Sidebar -->
+    <aside class="news-sidebar">
+      <div style="padding:11px 9px 0">
+        <div class="rbf-box"><div class="rbf-label">🏦 RBF Base Lending Rate</div><div class="rbf-rate">1.67%</div><div class="rbf-sub">p.a. — Q1 2025 · Reserve Bank of Fiji</div></div>
+      </div>
+      <div class="news-section">
+        <div class="news-section-header">🏛️ Local Bank Rates</div>
+        <a class="bank-card" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank"><div class="bank-card-header"><span class="bank-name">ANZ Fiji</span><span class="bank-badge">DEC 2025</span></div><div class="rate-row"><span class="rate-label">🏠 Home (Variable)</span><span class="rate-value">6.49%</span></div><div class="rate-row"><span class="rate-label">🏠 Home (1yr Fixed)</span><span class="rate-value">3.95%</span></div><div class="rate-row"><span class="rate-label">🚗 Car Loan</span><span class="rate-value">8.45%</span></div><div class="rate-row"><span class="rate-label">💳 Personal (Secured)</span><span class="rate-value">10.50%</span></div><div class="rate-row"><span class="rate-label">💳 Personal (Unsecured)</span><span class="rate-value">16.50%</span></div><span class="bank-link">→ anz.com/fiji</span></a>
+        <a class="bank-card" href="https://www.westpac.com.fj/" target="_blank"><div class="bank-card-header"><span class="bank-name">Westpac Fiji</span><span class="bank-badge">JAN 2026</span></div><div class="rate-row"><span class="rate-label">🏠 Home (1yr Fixed)</span><span class="rate-value">4.75%</span></div><div class="rate-row"><span class="rate-label">🏠 Home (Variable)</span><span class="rate-value">7.49%</span></div><div class="rate-row"><span class="rate-label">🚗 Vehicle (1yr Fixed)</span><span class="rate-value">4.75%</span></div><div class="rate-row"><span class="rate-label">💳 Personal (Secured)</span><span class="rate-value">10.45%</span></div><span class="bank-link">→ westpac.com.fj</span></a>
+        <a class="bank-card" href="https://www.bsp.com.fj/help/indicated-lending-rates/" target="_blank"><div class="bank-card-header"><span class="bank-name">BSP Fiji</span><span class="bank-badge">2025</span></div><div class="rate-row"><span class="rate-label">🏠 Home (1yr Fixed)</span><span class="rate-value">4.10%</span></div><div class="rate-row"><span class="rate-label">🏠 Home (2yr Fixed)</span><span class="rate-value">4.90%</span></div><div class="rate-row"><span class="rate-label">🚗 Motor Vehicle</span><span class="rate-value">Contact BSP</span></div><span class="bank-link">→ bsp.com.fj</span></a>
+        <a class="bank-card" href="https://www.hfc.com.fj/" target="_blank"><div class="bank-card-header"><span class="bank-name">HFC Bank</span><span class="bank-badge">2025</span></div><div class="rate-row"><span class="rate-label">🏠 Dream Home Package</span><span class="rate-value">Competitive</span></div><div class="rate-row"><span class="rate-label">🚗 Motor Vehicle</span><span class="rate-value">Contact HFC</span></div><span class="bank-link">→ hfc.com.fj</span></a>
+        <a class="bank-card" href="https://www.fdb.com.fj/" target="_blank"><div class="bank-card-header"><span class="bank-name">FDB</span><span class="bank-badge">2025</span></div><div class="rate-row"><span class="rate-label">🏠 Choice Home Loan</span><span class="rate-value">from 3.99%</span></div><div class="rate-row"><span class="rate-label">👤 Youth/Women/Rural</span><span class="rate-value">✓ Focus</span></div><span class="bank-link">→ fdb.com.fj</span></a>
+      </div>
+      <div class="news-section">
+        <div class="news-section-header">📰 Fiji Loan News</div>
+        <a class="news-item" href="https://www.fbcnews.com.fj/" target="_blank"><span class="news-tag tag-mortgage">Mortgage</span><div class="news-headline">FDB launches Choice Home Loan from 3.99% — targets youth, women &amp; rural communities</div><div class="news-meta"><span class="news-source">FBC News</span> · 2025</div></a>
+        <a class="news-item" href="https://www.fijivillage.com/" target="_blank"><span class="news-tag tag-mortgage">Mortgage</span><div class="news-headline">Merchant Finance launches zero-deposit home loan — first of its kind in Fiji</div><div class="news-meta"><span class="news-source">Fijivillage</span> · 2025</div></a>
+        <a class="news-item" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank"><span class="news-tag tag-vehicle">Vehicle</span><div class="news-headline">ANZ Fiji car loan at 8.45% p.a. — among the most competitive in Fiji</div><div class="news-meta"><span class="news-source">ANZ Fiji</span> · Dec 2025</div></a>
+        <a class="news-item" href="https://www.westpac.com.fj/" target="_blank"><span class="news-tag tag-vehicle">Vehicle</span><div class="news-headline">Westpac vehicle 1-yr fixed drops to 4.75% — updated Jan 2026</div><div class="news-meta"><span class="news-source">Westpac Fiji</span> · Jan 2026</div></a>
+        <a class="news-item" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank"><span class="news-tag tag-personal">Personal</span><div class="news-headline">ANZ personal: secured 10.50%, unsecured 16.50% — Dec 2025 rates</div><div class="news-meta"><span class="news-source">ANZ Fiji</span> · Dec 2025</div></a>
+      </div>
+      <div style="text-align:center;color:var(--muted);font-size:11px;padding:10px 9px 14px">⚠️ Rates indicative only. Verify with each bank. All amounts FJD.</div>
+    </aside>
+  </div>
 </div>
 
+<!-- Share Modal -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal">
+    <div class="modal-title">🔗 Share Calculation</div>
+    <div class="modal-sub">Anyone with this link can view this saved calculation (read-only).</div>
+    <div class="share-link-box"><input class="share-link-input" id="share-link-val" readonly/><button class="btn btn-primary btn-sm" onclick="copyShareLink()">Copy</button></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeShareModal()">Close</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-// ─── Helpers ────────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const fmt = (n, d=0) => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:d}).format(n);
-const fmtK = n => n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : `$${(n/1000).toFixed(0)}k`;
+// ═══════════════════════════════════════════════════════════════
+//  ⚙️  SUPABASE CONFIG — Replace these two values
+//  1. Go to supabase.com → your project → Settings → API
+//  2. Copy "Project URL" and "anon public" key and paste below
+// ═══════════════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://sqmpedbzaodjreflnqtk.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxbXBlZGJ6YW9kanJlZmxucXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQ0ODcsImV4cCI6MjA4NzEwMDQ4N30.qyUCwrgKEbO4kkgzR6wa_uFioxFu7CnlmsvsOOqyRBQ';
 
-function syncSlider(inputId, sliderId) {
-  const v = parseFloat($(inputId).value) || 0;
-  $(sliderId).value = v;
+// ═══════════════════════════════════════════════════════════════
+//  SUPABASE SQL — Run this once in your Supabase SQL Editor:
+//
+//  CREATE TABLE saved_calculations (
+//    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+//    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+//    label TEXT NOT NULL,
+//    calculator_type TEXT NOT NULL,
+//    inputs JSONB NOT NULL,
+//    result_summary TEXT,
+//    created_at TIMESTAMPTZ DEFAULT NOW()
+//  );
+//  ALTER TABLE saved_calculations ENABLE ROW LEVEL SECURITY;
+//  CREATE POLICY "Users manage own calcs" ON saved_calculations
+//    FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+// ═══════════════════════════════════════════════════════════════
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+let currentUser = null, allSaved = [];
+
+// ─── AUTH ────────────────────────────────────────────────────
+function authTab(t){
+  document.querySelectorAll('.auth-tab').forEach((el,i)=>el.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='register')));
+  G('auth-login').classList.toggle('active',t==='login');
+  G('auth-register').classList.toggle('active',t==='register');
 }
-function syncInput(sliderId, inputId) {
-  $(inputId).value = $(sliderId).value;
+async function doLogin(){
+  const email=G('login-email').value.trim(), pass=G('login-password').value;
+  const btn=G('login-btn'), msg=G('login-msg');
+  if(!email||!pass){showMsg(msg,'error','Please enter email and password.');return;}
+  btn.disabled=true; btn.textContent='Signing in…';
+  const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false; btn.textContent='Sign In →';
+  if(error){showMsg(msg,'error',error.message);return;}
+  onLogin(data.user);
+}
+async function doRegister(){
+  const name=G('reg-name').value.trim(),email=G('reg-email').value.trim(),pass=G('reg-password').value,conf=G('reg-confirm').value;
+  const btn=G('reg-btn'),msg=G('reg-msg');
+  if(!name||!email||!pass||!conf){showMsg(msg,'error','All fields are required.');return;}
+  if(pass.length<8){showMsg(msg,'error','Password must be at least 8 characters.');return;}
+  if(pass!==conf){showMsg(msg,'error','Passwords do not match.');return;}
+  btn.disabled=true; btn.textContent='Creating account…';
+  const{error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+  btn.disabled=false; btn.textContent='Create Account & Verify Email →';
+  if(error){showMsg(msg,'error',error.message);return;}
+  G('verify-box').style.display='block';
+  showMsg(msg,'success','Account created! Check your email to verify.');
+}
+async function doReset(){
+  const email=G('login-email').value.trim();
+  if(!email){showMsg(G('login-msg'),'error','Enter your email address first.');return;}
+  const{error}=await sb.auth.resetPasswordForEmail(email);
+  if(error){showMsg(G('login-msg'),'error',error.message);return;}
+  showMsg(G('login-msg'),'success','Password reset email sent!');
+}
+async function doSignOut(){
+  await sb.auth.signOut(); currentUser=null;
+  G('app-screen').style.display='none'; G('auth-screen').style.display='flex';
+  toast('Signed out.');
+}
+function onLogin(user){
+  currentUser=user;
+  const name=user.user_metadata?.full_name||user.email.split('@')[0];
+  G('user-name-display').textContent=name;
+  G('user-avatar').textContent=name.charAt(0).toUpperCase();
+  G('auth-screen').style.display='none'; G('app-screen').style.display='block';
+  loadSaved(); calcMortgage(); calcVehicle(); calcPersonal(); calcSavings();
+}
+function showMsg(el,type,text){el.className=`auth-msg ${type}`;el.textContent=text;el.style.display='block';}
+
+// Session restore + share link on load
+(async()=>{
+  const{data}=await sb.auth.getSession();
+  if(data.session) onLogin(data.session.user);
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('share')) loadSharedCalc(p.get('share'));
+})();
+
+// ─── SAVE / LOAD ─────────────────────────────────────────────
+function G(id){return document.getElementById(id);}
+const v=id=>parseFloat(G(id).value)||0;
+
+function getInputs(type){
+  if(type==='mortgage') return{price:v('m-price'),down:v('m-down'),rate:v('m-rate'),term:v('m-term'),tax:v('m-tax'),ins:v('m-ins')};
+  if(type==='vehicle')  return{price:v('v-price'),tradein:v('v-tradein'),down:v('v-down'),taxRate:v('v-tax'),rate:v('v-rate'),term:v('v-term')};
+  if(type==='personal') return{amount:v('p-amount'),rate:v('p-rate'),term:v('p-term')};
+  if(type==='savings')  return{initial:v('s-initial'),monthly:v('s-monthly'),rate:v('s-rate'),years:v('s-years'),freq:savingsFreq};
+}
+function getSummary(type){
+  if(type==='mortgage') return`P&I: ${G('m-out-pi').textContent} | Total Monthly: ${G('m-out-total').textContent} | Loan: ${G('m-out-loan').textContent}`;
+  if(type==='vehicle')  return`Monthly: ${G('v-out-monthly').textContent} | Loan: ${G('v-out-loan').textContent} | Total Interest: ${G('v-out-interest').textContent}`;
+  if(type==='personal') return`Monthly: ${G('p-out-monthly').textContent} | Total Interest: ${G('p-out-interest').textContent} | Total Paid: ${G('p-out-total').textContent}`;
+  if(type==='savings')  return`Final Value: ${G('s-out-final').textContent} | Invested: ${G('s-out-contrib').textContent} | Growth: ${G('s-out-growth').textContent}`;
+}
+async function saveCalc(type){
+  if(!currentUser){toast('Please sign in first.','error');return;}
+  const lid=`${type.charAt(0)}-save-label`;
+  const label=G(lid).value.trim()||`${type} — ${new Date().toLocaleDateString('en-FJ')}`;
+  const{error}=await sb.from('saved_calculations').insert({user_id:currentUser.id,label,calculator_type:type,inputs:getInputs(type),result_summary:getSummary(type)});
+  if(error){toast('Error: '+error.message,'error');return;}
+  toast('✅ Saved!','success'); G(lid).value=''; loadSaved();
+}
+async function loadSaved(){
+  if(!currentUser)return;
+  const{data}=await sb.from('saved_calculations').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  allSaved=data||[]; renderSaved(allSaved); populateCompareSelects();
+}
+function filterSaved(type,btn){
+  document.querySelectorAll('#filter-btns .btn').forEach(b=>b.style.borderColor='');
+  btn.style.borderColor='var(--primary)';
+  renderSaved(type==='all'?allSaved:allSaved.filter(c=>c.calculator_type===type));
+}
+const typeIcon={mortgage:'🏠',vehicle:'🚗',personal:'💳',savings:'📈'};
+function renderSaved(list){
+  const c=G('saved-list-container');
+  if(!list.length){c.innerHTML='<div style="text-align:center;color:var(--muted);padding:60px 20px;font-size:14px">No saved calculations yet.<br>Use the 💾 Save bar on any calculator!</div>';return;}
+  c.innerHTML=`<div class="saved-list">${list.map(s=>`<div class="saved-card">
+    <div class="saved-card-header"><div><div class="saved-card-title">${typeIcon[s.calculator_type]||''} ${esc(s.label)}</div><span class="saved-card-type type-${s.calculator_type}">${s.calculator_type}</span></div></div>
+    <div class="saved-card-summary">${esc(s.result_summary||'')}</div>
+    <div class="saved-card-actions">
+      <button class="btn btn-primary btn-sm" onclick="reloadCalc('${s.id}')">↩ Load</button>
+      <button class="btn btn-outline btn-sm" onclick="shareCalc('${s.id}')">🔗 Share</button>
+      <button class="btn btn-outline btn-sm" onclick="exportSinglePDF('${s.id}')">📄 PDF</button>
+      <button class="btn btn-danger" onclick="deleteCalc('${s.id}')">🗑</button>
+    </div>
+    <div class="saved-date">Saved ${new Date(s.created_at).toLocaleString('en-FJ')}</div>
+  </div>`).join('')}</div>`;
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function deleteCalc(id){
+  if(!confirm('Delete this saved calculation?'))return;
+  await sb.from('saved_calculations').delete().eq('id',id);
+  toast('Deleted.'); loadSaved();
+}
+function setF(inputId,val,sliderId){G(inputId).value=val;if(sliderId)G(sliderId).value=val;}
+function reloadCalc(id){
+  const s=allSaved.find(x=>x.id===id); if(!s)return;
+  const i=s.inputs;
+  if(s.calculator_type==='mortgage'){setF('m-price',i.price,'ms-price');setF('m-down',i.down,'ms-down');setF('m-rate',i.rate,'ms-rate');setF('m-term',i.term,'ms-term');setF('m-tax',i.tax,'ms-tax');setF('m-ins',i.ins,'ms-ins');switchTabById('mortgage');calcMortgage();}
+  else if(s.calculator_type==='vehicle'){setF('v-price',i.price,'vs-price');setF('v-tradein',i.tradein,'vs-tradein');setF('v-down',i.down,'vs-down');setF('v-tax',i.taxRate,'vs-tax');setF('v-rate',i.rate,'vs-rate');setF('v-term',i.term,'vs-term');switchTabById('vehicle');calcVehicle();}
+  else if(s.calculator_type==='personal'){setF('p-amount',i.amount,'ps-amount');setF('p-rate',i.rate,'ps-rate');setF('p-term',i.term,'ps-term');switchTabById('personal');calcPersonal();}
+  else if(s.calculator_type==='savings'){setF('s-initial',i.initial,'ss-initial');setF('s-monthly',i.monthly,'ss-monthly');setF('s-rate',i.rate,'ss-rate');setF('s-years',i.years,'ss-years');setFreq(i.freq||'monthly');switchTabById('savings');calcSavings();}
+  toast('✅ Calculation loaded!','success');
+}
+function switchTabById(id){const btn=Array.from(document.querySelectorAll('.nav-item')).find(b=>(b.getAttribute('onclick')||'').includes(`'${id}'`));if(btn)switchTab(id,btn);}
+
+// ─── SHARE ────────────────────────────────────────────────────
+function shareCalc(id){G('share-link-val').value=`${location.origin}${location.pathname}?share=${id}`;G('share-modal').classList.add('open');}
+function closeShareModal(){G('share-modal').classList.remove('open');}
+function copyShareLink(){navigator.clipboard.writeText(G('share-link-val').value).then(()=>toast('🔗 Link copied!','success'));}
+async function loadSharedCalc(id){
+  const{data}=await sb.from('saved_calculations').select('*').eq('id',id).single();
+  if(!data)return;
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9000;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;max-width:460px;width:calc(100% - 40px);box-shadow:0 25px 60px rgba(0,0,0,0.5)">
+    <div style="font-size:18px;font-weight:700;margin-bottom:6px">📊 Shared Calculation</div>
+    <div style="font-size:22px;font-weight:700;color:var(--primary-light);margin:10px 0">${esc(data.label)}</div>
+    <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">${data.calculator_type} calculator</div>
+    <div style="font-size:14px;color:var(--text);padding:13px;background:var(--surface-high);border-radius:9px;margin-bottom:14px">${esc(data.result_summary||'')}</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:18px">Shared on ${new Date(data.created_at).toLocaleDateString('en-FJ')}</div>
+    <div style="display:flex;gap:10px">
+      <a href="${location.origin}${location.pathname}" style="flex:1;text-align:center;padding:11px;background:var(--primary);color:white;border-radius:9px;text-decoration:none;font-weight:700;font-size:14px">Open Calculator</a>
+      <button onclick="this.closest('[style]').remove()" style="padding:11px 18px;background:transparent;border:1px solid var(--border);color:var(--text);border-radius:9px;cursor:pointer;font-size:14px">Close</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
 }
 
-function monthlyPayment(principal, annualRate, termMonths) {
-  if (annualRate === 0) return principal / termMonths;
-  const r = annualRate / 100 / 12;
-  return (principal * r * Math.pow(1+r, termMonths)) / (Math.pow(1+r, termMonths) - 1);
+// ─── PDF EXPORT ───────────────────────────────────────────────
+async function exportSinglePDF(id){
+  const s=allSaved.find(x=>x.id===id);if(!s)return;
+  const{jsPDF}=window.jspdf,doc=new jsPDF();
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(79,70,229);
+  doc.text('Finance Calculator — Fiji',14,18);
+  doc.setFontSize(15);doc.setTextColor(30,30,30);doc.text(s.label,14,32);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(100,116,139);
+  doc.text(`Type: ${s.calculator_type.charAt(0).toUpperCase()+s.calculator_type.slice(1)}  |  Saved: ${new Date(s.created_at).toLocaleString('en-FJ')}`,14,41);
+  doc.setDrawColor(79,70,229);doc.setLineWidth(0.4);doc.line(14,45,196,45);
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(30,30,30);doc.text('Results',14,54);
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(50,50,50);
+  doc.text(doc.splitTextToSize(s.result_summary||'',175),14,63);
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(30,30,30);doc.text('Input Parameters',14,90);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(70,70,70);
+  let y=100;Object.entries(s.inputs).forEach(([k,val])=>{doc.text(`${k}: ${val}`,18,y);y+=8;});
+  doc.setFontSize(8);doc.setTextColor(148,163,184);
+  doc.text('Rates indicative only. Verify with your bank. fong679.github.io/financenexus',14,285);
+  doc.save(`${s.label.replace(/\s+/g,'-')}.pdf`);
+  toast('📄 PDF exported!','success');
+}
+async function exportComparePDF(){
+  const idA=G('compare-a').value,idB=G('compare-b').value;
+  if(!idA||!idB){toast('Select two scenarios first.','error');return;}
+  const a=allSaved.find(x=>x.id===idA),b=allSaved.find(x=>x.id===idB);
+  const{jsPDF}=window.jspdf,doc=new jsPDF();
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(79,70,229);
+  doc.text('Finance Calculator — Comparison Report',14,18);
+  doc.setDrawColor(79,70,229);doc.setLineWidth(0.4);doc.line(14,22,196,22);
+  [[a,14],[b,110]].forEach(([c,x])=>{
+    doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(30,30,30);doc.text(c.label,x,32);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,116,139);doc.text(c.calculator_type,x,39);
+    doc.setFontSize(10);doc.setTextColor(50,50,50);
+    doc.text(doc.splitTextToSize(c.result_summary||'',78),x,46);
+    let y2=72;Object.entries(c.inputs).forEach(([k,v2])=>{doc.text(`${k}: ${v2}`,x+2,y2);y2+=7;});
+  });
+  doc.setFontSize(8);doc.setTextColor(148,163,184);
+  doc.text('Rates indicative only. fong679.github.io/financenexus',14,285);
+  doc.save('comparison-report.pdf');toast('📄 PDF ready!','success');
 }
 
-function buildAmortization(principal, annualRate, termMonths) {
-  const r = annualRate / 100 / 12;
-  let bal = principal;
-  const pmt = monthlyPayment(principal, annualRate, termMonths);
-  return Array.from({length: termMonths}, (_, i) => {
-    const interest = bal * r;
-    const princ = pmt - interest;
-    bal = Math.max(0, bal - princ);
-    return { month: i+1, interest, principal: princ, balance: bal };
+// ─── COMPARE ─────────────────────────────────────────────────
+function populateCompareSelects(){
+  const opts=allSaved.map(c=>`<option value="${c.id}">${c.calculator_type.toUpperCase()} — ${esc(c.label)}</option>`).join('');
+  G('compare-a').innerHTML='<option value="">— Select Scenario A —</option>'+opts;
+  G('compare-b').innerHTML='<option value="">— Select Scenario B —</option>'+opts;
+}
+function runCompare(){
+  const idA=G('compare-a').value,idB=G('compare-b').value;
+  if(!idA||!idB){toast('Select two scenarios.','error');return;}
+  if(idA===idB){toast('Select two different scenarios.','error');return;}
+  const a=allSaved.find(x=>x.id===idA),b=allSaved.find(x=>x.id===idB);
+  const col=c=>`<div class="compare-col">
+    <div class="compare-col-header">${typeIcon[c.calculator_type]||''} ${esc(c.label)}<br><span style="font-size:11px;color:var(--muted);font-weight:400">${c.calculator_type} · ${new Date(c.created_at).toLocaleDateString('en-FJ')}</span></div>
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Results</div>
+    ${(c.result_summary||'').split('|').map(s=>{const[k,v2]=(s||'').split(':');return k&&v2?`<div class="compare-row"><span class="compare-key">${k.trim()}</span><span class="compare-val highlight">${v2.trim()}</span></div>`:''}).join('')}
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:10px 0 5px">Inputs</div>
+    ${Object.entries(c.inputs).map(([k,v2])=>`<div class="compare-row"><span class="compare-key">${k}</span><span class="compare-val">${v2}</span></div>`).join('')}
+  </div>`;
+  G('compare-output').innerHTML=`<div class="compare-grid">${col(a)}${col(b)}</div>`;
+}
+
+// ─── THEME ────────────────────────────────────────────────────
+function toggleTheme(){
+  const isLight=document.documentElement.classList.toggle('light');
+  G('theme-btn').textContent=isLight?'☀️':'🌙';
+  const tick=isLight?'#475569':'#94A3B8',grid=isLight?'rgba(203,213,225,0.6)':'rgba(51,65,85,0.5)';
+  Object.values(charts).forEach(ch=>{
+    ['x','y'].forEach(ax=>{ch.options.scales[ax].grid.color=grid;ch.options.scales[ax].ticks.color=tick;});
+    ch.options.plugins.legend.labels.color=tick;
+    ch.options.plugins.tooltip.backgroundColor=isLight?'#fff':'#1E293B';
+    ch.options.plugins.tooltip.titleColor=isLight?'#0F172A':'#F1F5F9';
+    ch.options.plugins.tooltip.bodyColor=tick; ch.update();
   });
 }
 
-// ─── Chart Registry ──────────────────────────────────────────────────────────
-const charts = {};
-function makeChart(id, config) {
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart($(id), config);
+// ─── TOAST ────────────────────────────────────────────────────
+function toast(msg,type='success'){
+  const t=G('toast');t.textContent=msg;t.className='show '+(type||'');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='',3200);
 }
 
-const gridColor = 'rgba(51,65,85,0.5)';
-const tickColor = '#94A3B8';
-const baseChartOpts = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { labels: { color: tickColor, font: { family: 'DM Sans', size:12 }, boxWidth: 12 } }, tooltip: { backgroundColor: '#1E293B', borderColor: '#334155', borderWidth: 1, titleColor: '#F1F5F9', bodyColor: '#94A3B8', titleFont: {size:14}, bodyFont: {size:13} } },
-  scales: {
-    x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'DM Mono', size: 12 } } },
-    y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'DM Mono', size: 12 } } }
-  }
-};
+// ─── CHART HELPERS ────────────────────────────────────────────
+const charts={};
+function makeChart(id,config){if(charts[id])charts[id].destroy();charts[id]=new Chart(G(id),config);}
+const gridC='rgba(51,65,85,0.5)',tickC='#94A3B8';
+const baseOpts={responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{labels:{color:tickC,font:{family:'DM Sans',size:12},boxWidth:12}},tooltip:{backgroundColor:'#1E293B',borderColor:'#334155',borderWidth:1,titleColor:'#F1F5F9',bodyColor:'#94A3B8'}},
+  scales:{x:{grid:{color:gridC},ticks:{color:tickC,font:{family:'DM Mono',size:11}}},y:{grid:{color:gridC},ticks:{color:tickC,font:{family:'DM Mono',size:11}}}}};
 
-// ─── MORTGAGE ────────────────────────────────────────────────────────────────
-function calcMortgage() {
-  const price  = parseFloat($('m-price').value) || 0;
-  const downP  = parseFloat($('m-down').value) || 0;
-  const rate   = parseFloat($('m-rate').value) || 0;
-  const term   = parseInt($('m-term').value) || 30;
-  const tax    = parseFloat($('m-tax').value) || 0;
-  const ins    = parseFloat($('m-ins').value) || 0;
-
-  const down   = price * downP / 100;
-  const loan   = price - down;
-  const months = term * 12;
-  const pi     = monthlyPayment(loan, rate, months);
-  const totalMonthly = pi + tax/12 + ins/12;
-  const totalPaid    = pi * months;
-  const totalInterest = totalPaid - loan;
-
-  $('m-out-pi').textContent       = fmt(pi);
-  $('m-out-total').textContent    = fmt(totalMonthly);
-  $('m-out-loan').textContent     = fmt(loan);
-  $('m-out-interest').textContent = fmt(totalInterest);
-  $('m-out-cost').textContent     = fmt(totalPaid + down);
-
-  // Summary Logic
-  const intPct = ((totalInterest / loan) * 100).toFixed(0);
-  $('m-analysis').innerHTML = `
-    With a <strong>${downP}% down payment</strong> ($${fmtK(down)}), you will borrow <strong>${fmt(loan)}</strong>. 
-    Over ${term} years, you will pay <strong>${fmt(totalInterest)}</strong> in interest, which is roughly <strong>${intPct}%</strong> of the loan amount. 
-    Your estimated monthly payment including taxes and insurance is <strong>${fmt(totalMonthly)}</strong>.
-  `;
-
-  // Annual chart data
-  const schedule = buildAmortization(loan, rate, months);
-  const labels = [], intData = [], princData = [];
-  for (let y = 1; y <= term; y++) {
-    const slice = schedule.slice((y-1)*12, y*12);
-    labels.push(`Yr ${y}`);
-    intData.push(Math.round(slice.reduce((s,r) => s+r.interest, 0)));
-    princData.push(Math.round(slice.reduce((s,r) => s+r.principal, 0)));
-  }
-
-  makeChart('chart-mortgage', {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Interest', data: intData, backgroundColor: 'rgba(245,158,11,0.7)', borderColor: '#F59E0B', borderWidth: 1, borderRadius: 4 },
-        { label: 'Principal', data: princData, backgroundColor: 'rgba(79,70,229,0.7)', borderColor: '#4F46E5', borderWidth: 1, borderRadius: 4 }
-      ]
-    },
-    options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => fmtK(v) } } } }
-  });
+function switchTab(id,btn){
+  document.querySelectorAll('.calc-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  G(`page-${id}`).classList.add('active'); btn.classList.add('active');
+  if(id==='saved')loadSaved();
+  if(id==='compare')populateCompareSelects();
+  setTimeout(()=>{if(id==='mortgage')calcMortgage();if(id==='vehicle')calcVehicle();if(id==='personal')calcPersonal();if(id==='savings')calcSavings();},50);
 }
 
-// ─── VEHICLE ─────────────────────────────────────────────────────────────────
-function calcVehicle() {
-  const price   = parseFloat($('v-price').value) || 0;
-  const tradein = parseFloat($('v-tradein').value) || 0;
-  const down    = parseFloat($('v-down').value) || 0;
-  const taxRate = parseFloat($('v-tax').value) || 0;
-  const rate    = parseFloat($('v-rate').value) || 0;
-  const term    = parseInt($('v-term').value) || 60;
+// ─── FINANCIAL MATH ──────────────────────────────────────────
+function syncSlider(a,b){G(b).value=parseFloat(G(a).value)||0;}
+function syncInput(a,b){G(b).value=G(a).value;}
+function pmt(p,r,n){if(!r)return p/n;const m=r/100/12;return(p*m*Math.pow(1+m,n))/(Math.pow(1+m,n)-1);}
+function amort(p,r,n){const m=r/100/12;let b=p;const pm=pmt(p,r,n);return Array.from({length:n},(_,i)=>{const int=b*m,pr=pm-int;b=Math.max(0,b-pr);return{month:i+1,interest:int,principal:pr,balance:b};});}
+const fmt=(n,d=0)=>new Intl.NumberFormat('en-FJ',{style:'currency',currency:'FJD',maximumFractionDigits:d}).format(n);
+const fmtK=n=>n>=1e6?`$${(n/1e6).toFixed(1)}M`:`$${(n/1000).toFixed(0)}k`;
 
-  const taxAmt  = (price - tradein) * taxRate / 100;
-  const loan    = Math.max(0, price - tradein - down + taxAmt);
-  const monthly = monthlyPayment(loan, rate, term);
-  const totalInterest = monthly * term - loan;
-
-  $('v-out-monthly').textContent  = fmt(monthly);
-  $('v-out-loan').textContent     = fmt(loan);
-  $('v-out-tax').textContent      = fmt(taxAmt);
-  $('v-out-interest').textContent = fmt(Math.max(0, totalInterest));
-
-  // Summary Logic
-  $('v-analysis').innerHTML = `
-    After trade-in and a down payment of <strong>${fmt(down)}</strong>, you are financing <strong>${fmt(loan)}</strong> (including sales tax). 
-    Your monthly payment will be <strong>${fmt(monthly)}</strong> for ${term} months. 
-    By the end of the loan, you will have paid <strong>${fmt(totalInterest)}</strong> in interest charges.
-  `;
-
-  const schedule = buildAmortization(loan, rate, term);
-  const step = Math.max(1, Math.floor(term / 20));
-  const labels = [], balData = [];
-  schedule.filter((_,i) => i % step === 0 || i === term-1).forEach(r => {
-    labels.push(`M${r.month}`);
-    balData.push(Math.round(r.balance));
-  });
-
-  makeChart('chart-vehicle', {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{ label: 'Remaining Balance', data: balData, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4, pointRadius: 3, borderWidth: 3 }]
-    },
-    options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => fmtK(v) } } } }
-  });
+// ─── CALCULATORS ──────────────────────────────────────────────
+function calcMortgage(){
+  const price=v('m-price'),dp=v('m-down'),rate=v('m-rate'),term=parseInt(G('m-term').value)||30,tax=v('m-tax'),ins=v('m-ins');
+  const down=price*dp/100,loan=price-down,months=term*12;
+  const pi=pmt(loan,rate,months),tot=pi+tax/12+ins/12,paid=pi*months,int=paid-loan;
+  G('m-out-pi').textContent=fmt(pi);G('m-out-total').textContent=fmt(tot);
+  G('m-out-loan').textContent=fmt(loan);G('m-out-interest').textContent=fmt(int);G('m-out-cost').textContent=fmt(paid+down);
+  G('m-analysis').innerHTML=`With a <strong>${dp}% down payment</strong> (${fmt(down)}), you borrow <strong>${fmt(loan)}</strong>. Over ${term} years at ${rate}%, you'll pay <strong>${fmt(int)}</strong> in interest (~<strong>${((int/loan)*100).toFixed(0)}%</strong> of loan). Total monthly incl. tax &amp; insurance: <strong>${fmt(tot)}</strong>.`;
+  const sch=amort(loan,rate,months),labels=[],iD=[],pD=[];
+  for(let y=1;y<=term;y++){const sl=sch.slice((y-1)*12,y*12);labels.push(`Yr ${y}`);iD.push(Math.round(sl.reduce((s,r)=>s+r.interest,0)));pD.push(Math.round(sl.reduce((s,r)=>s+r.principal,0)));}
+  makeChart('chart-mortgage',{type:'bar',data:{labels,datasets:[{label:'Interest',data:iD,backgroundColor:'rgba(245,158,11,0.7)',borderColor:'#F59E0B',borderWidth:1,borderRadius:3},{label:'Principal',data:pD,backgroundColor:'rgba(79,70,229,0.7)',borderColor:'#4F46E5',borderWidth:1,borderRadius:3}]},options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:n=>fmtK(n)}}}}});
 }
-
-// ─── PERSONAL ────────────────────────────────────────────────────────────────
-function calcPersonal() {
-  const amount = parseFloat($('p-amount').value) || 0;
-  const rate   = parseFloat($('p-rate').value) || 0;
-  const term   = parseInt($('p-term').value) || 36;
-
-  const monthly = monthlyPayment(amount, rate, term);
-  const totalPaid = monthly * term;
-  const totalInterest = totalPaid - amount;
-  const pct = (totalInterest / amount) * 100;
-
-  $('p-out-monthly').textContent  = fmt(monthly);
-  $('p-out-interest').textContent = fmt(totalInterest);
-  $('p-out-total').textContent    = fmt(totalPaid);
-  $('p-out-pct').textContent      = `${pct.toFixed(1)}%`;
-  $('p-out-bar').style.width      = `${Math.min(100, pct).toFixed(1)}%`;
-
-  // Summary Logic
-  $('p-analysis').innerHTML = `
-    To borrow <strong>${fmt(amount)}</strong> over ${term} months at ${rate}%, you will need to pay <strong>${fmt(monthly)}</strong> per month. 
-    The total cost of this loan (interest) is <strong>${fmt(totalInterest)}</strong>, bringing your total repayment to <strong>${fmt(totalPaid)}</strong>.
-  `;
-
-  const schedule = buildAmortization(amount, rate, term);
-
-  // Chart
-  const labels = schedule.map(r => r.month);
-  const princData = schedule.map(r => Math.round(r.principal));
-  const intData   = schedule.map(r => Math.round(r.interest));
-
-  makeChart('chart-personal', {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Principal', data: princData, backgroundColor: 'rgba(79,70,229,0.8)', borderRadius: 2, stack: 'a' },
-        { label: 'Interest', data: intData, backgroundColor: 'rgba(245,158,11,0.7)', borderRadius: 2, stack: 'a' }
-      ]
-    },
-    options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, x: { ...baseChartOpts.scales.x, stacked: true }, y: { ...baseChartOpts.scales.y, stacked: true, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => `$${v}` } } } }
-  });
-
-  // Table
-  const tbody = $('p-table');
-  tbody.innerHTML = schedule.map(r => `
-    <tr>
-      <td class="col-month">${r.month}</td>
-      <td class="col-payment">${fmt(monthly)}</td>
-      <td class="col-principal">${fmt(r.principal)}</td>
-      <td class="col-interest">${fmt(r.interest)}</td>
-      <td class="col-balance">${fmt(r.balance)}</td>
-    </tr>`).join('');
+function calcVehicle(){
+  const price=v('v-price'),ti=v('v-tradein'),dn=v('v-down'),tr=v('v-tax'),rate=v('v-rate'),term=parseInt(G('v-term').value)||60;
+  const tax=(price-ti)*tr/100,loan=Math.max(0,price-ti-dn+tax),mo=pmt(loan,rate,term),tInt=mo*term-loan;
+  G('v-out-monthly').textContent=fmt(mo);G('v-out-loan').textContent=fmt(loan);G('v-out-tax').textContent=fmt(tax);G('v-out-interest').textContent=fmt(Math.max(0,tInt));
+  G('v-analysis').innerHTML=`After trade-in and down payment of <strong>${fmt(dn)}</strong>, you're financing <strong>${fmt(loan)}</strong> (incl. tax). Monthly: <strong>${fmt(mo)}</strong> for ${term} months. Total interest: <strong>${fmt(Math.max(0,tInt))}</strong>.`;
+  const sch=amort(loan,rate,term),step=Math.max(1,Math.floor(term/20)),labels=[],bD=[];
+  sch.filter((_,i)=>i%step===0||i===term-1).forEach(r=>{labels.push(`M${r.month}`);bD.push(Math.round(r.balance));});
+  makeChart('chart-vehicle',{type:'line',data:{labels,datasets:[{label:'Remaining Balance',data:bD,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:0.4,pointRadius:2,borderWidth:2.5}]},options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:n=>fmtK(n)}}}}});
 }
-
-// ─── SAVINGS ─────────────────────────────────────────────────────────────────
-let savingsFreq = 'monthly';
-function setFreq(f) {
-  savingsFreq = f;
-  $('freq-monthly').classList.toggle('active', f === 'monthly');
-  $('freq-annually').classList.toggle('active', f === 'annually');
-  calcSavings();
+function calcPersonal(){
+  const amt=v('p-amount'),rate=v('p-rate'),term=parseInt(G('p-term').value)||36;
+  const mo=pmt(amt,rate,term),total=mo*term,int=total-amt,pct=(int/amt)*100;
+  G('p-out-monthly').textContent=fmt(mo);G('p-out-interest').textContent=fmt(int);G('p-out-total').textContent=fmt(total);G('p-out-pct').textContent=`${pct.toFixed(1)}%`;G('p-out-bar').style.width=`${Math.min(100,pct).toFixed(1)}%`;
+  G('p-analysis').innerHTML=`Borrowing <strong>${fmt(amt)}</strong> over ${term} months at ${rate}%, monthly payment is <strong>${fmt(mo)}</strong>. Total interest: <strong>${fmt(int)}</strong>. Total repayment: <strong>${fmt(total)}</strong>.`;
+  const sch=amort(amt,rate,term);
+  makeChart('chart-personal',{type:'bar',data:{labels:sch.map(r=>r.month),datasets:[{label:'Principal',data:sch.map(r=>Math.round(r.principal)),backgroundColor:'rgba(79,70,229,0.8)',borderRadius:2,stack:'a'},{label:'Interest',data:sch.map(r=>Math.round(r.interest)),backgroundColor:'rgba(245,158,11,0.7)',borderRadius:2,stack:'a'}]},options:{...baseOpts,scales:{...baseOpts.scales,x:{...baseOpts.scales.x,stacked:true},y:{...baseOpts.scales.y,stacked:true,ticks:{...baseOpts.scales.y.ticks,callback:n=>`$${n}`}}}}});
+  G('p-table').innerHTML=sch.map(r=>`<tr><td style="color:var(--muted)">${r.month}</td><td>${fmt(mo)}</td><td class="col-principal">${fmt(r.principal)}</td><td class="col-interest">${fmt(r.interest)}</td><td>${fmt(r.balance)}</td></tr>`).join('');
 }
-
-function calcSavings() {
-  const initial  = parseFloat($('s-initial').value) || 0;
-  const monthly  = parseFloat($('s-monthly').value) || 0;
-  const rate     = parseFloat($('s-rate').value) || 0;
-  const years    = parseInt($('s-years').value) || 20;
-  const n        = savingsFreq === 'monthly' ? 12 : 1;
-  const r        = rate / 100;
-
-  const labels = [], balData = [], contribData = [];
-  let balance = initial, totalContrib = initial;
-  labels.push('Now'); balData.push(Math.round(initial)); contribData.push(Math.round(initial));
-
-  for (let y = 1; y <= years; y++) {
-    for (let p = 0; p < n; p++) {
-      balance = balance * (1 + r/n) + monthly * (12/n);
-      totalContrib += monthly * (12/n);
-    }
-    labels.push(`Yr ${y}`);
-    balData.push(Math.round(balance));
-    contribData.push(Math.round(totalContrib));
-  }
-
-  const finalBal = balData[balData.length - 1];
-  const finalContrib = contribData[contribData.length - 1];
-  const growth = finalBal - finalContrib;
-
-  $('s-out-final').textContent   = fmt(finalBal);
-  $('s-out-contrib').textContent = fmt(finalContrib);
-  $('s-out-growth').textContent  = fmt(Math.max(0, growth));
-
-  // Summary Logic
-  const multiplier = (finalBal / finalContrib).toFixed(1);
-  $('s-analysis').innerHTML = `
-    If you start with <strong>${fmt(initial)}</strong> and contribute <strong>${fmt(monthly)}/mo</strong> for ${years} years at ${rate}%, your portfolio could grow to <strong>${fmt(finalBal)}</strong>. 
-    <br>That is <strong>${fmt(growth)}</strong> in pure investment earnings. Your money effectively multiplied by <strong>${multiplier}x</strong>.
-  `;
-
-  // Milestones
-  const milestones = [5, 10, 20].filter(y => y <= years);
-  $('s-milestones').innerHTML = milestones.map(y => {
-    const idx = y; // year index matches label index
-    const bal = balData[idx] || 0;
-    const con = contribData[idx] || 0;
-    return `<div class="milestone">
-      <div class="milestone-year">Year ${y}</div>
-      <div class="milestone-val">${fmt(bal)}</div>
-      <div class="milestone-sub">+${fmt(bal - con)} growth</div>
-    </div>`;
-  }).join('');
-
-  makeChart('chart-savings', {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Portfolio Value', data: balData, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.12)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 3 },
-        { label: 'Contributions', data: contribData, borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.08)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2, borderDash: [4,3] }
-      ]
-    },
-    options: { ...baseChartOpts, scales: { ...baseChartOpts.scales, y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, callback: v => fmtK(v) } } } }
-  });
+let savingsFreq='monthly';
+function setFreq(f){savingsFreq=f;G('freq-monthly').classList.toggle('active',f==='monthly');G('freq-annually').classList.toggle('active',f==='annually');calcSavings();}
+function calcSavings(){
+  const ini=v('s-initial'),mo=v('s-monthly'),rate=v('s-rate'),years=parseInt(G('s-years').value)||20,n=savingsFreq==='monthly'?12:1,r=rate/100;
+  const labels=['Now'],bD=[Math.round(ini)],cD=[Math.round(ini)];
+  let bal=ini,tc=ini;
+  for(let y=1;y<=years;y++){for(let p=0;p<n;p++){bal=bal*(1+r/n)+mo*(12/n);tc+=mo*(12/n);}labels.push(`Yr ${y}`);bD.push(Math.round(bal));cD.push(Math.round(tc));}
+  const fb=bD[bD.length-1],fc=cD[cD.length-1],gr=fb-fc;
+  G('s-out-final').textContent=fmt(fb);G('s-out-contrib').textContent=fmt(fc);G('s-out-growth').textContent=fmt(Math.max(0,gr));
+  G('s-analysis').innerHTML=`Starting with <strong>${fmt(ini)}</strong> + <strong>${fmt(mo)}/mo</strong> for ${years} years at ${rate}% → portfolio could reach <strong>${fmt(fb)}</strong>. That's <strong>${fmt(gr)}</strong> in pure earnings. Your money multiplied <strong>${(fb/Math.max(1,fc)).toFixed(1)}x</strong>.`;
+  G('s-milestones').innerHTML=[5,10,20].filter(y=>y<=years).map(y=>`<div class="milestone"><div class="milestone-year">Year ${y}</div><div class="milestone-val">${fmt(bD[y]||0)}</div><div class="milestone-sub">+${fmt((bD[y]||0)-(cD[y]||0))} growth</div></div>`).join('');
+  makeChart('chart-savings',{type:'line',data:{labels,datasets:[{label:'Portfolio Value',data:bD,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:0.4,pointRadius:1,borderWidth:2.5},{label:'Contributions',data:cD,borderColor:'#4F46E5',backgroundColor:'rgba(79,70,229,0.07)',fill:true,tension:0.4,pointRadius:1,borderWidth:2,borderDash:[4,3]}]},options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:n=>fmtK(n)}}}}});
 }
-
-// ─── Tab Switching ────────────────────────────────────────────────────────────
-function switchTab(id, btn) {
-  document.querySelectorAll('.calc-page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-  $(`page-${id}`).classList.add('active');
-  btn.classList.add('active');
-  // Trigger calc to ensure charts render correctly in new size
-  setTimeout(() => {
-    if (id === 'mortgage') calcMortgage();
-    if (id === 'vehicle')  calcVehicle();
-    if (id === 'personal') calcPersonal();
-    if (id === 'savings')  calcSavings();
-  }, 50);
-}
-
-// ─── Theme Toggle ─────────────────────────────────────────────────────────────
-function toggleTheme() {
-  const isLight = document.documentElement.classList.toggle('light');
-  document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
-  const newTick = isLight ? '#475569' : '#94A3B8';
-  const newGrid = isLight ? 'rgba(203,213,225,0.6)' : 'rgba(51,65,85,0.5)';
-  const newTooltipBg = isLight ? '#FFFFFF' : '#1E293B';
-  const newTooltipBorder = isLight ? '#CBD5E1' : '#334155';
-  Object.values(charts).forEach(chart => {
-    ['x','y'].forEach(axis => {
-      chart.options.scales[axis].grid.color = newGrid;
-      chart.options.scales[axis].ticks.color = newTick;
-    });
-    chart.options.plugins.legend.labels.color = newTick;
-    chart.options.plugins.tooltip.backgroundColor = newTooltipBg;
-    chart.options.plugins.tooltip.borderColor = newTooltipBorder;
-    chart.options.plugins.tooltip.titleColor = isLight ? '#0F172A' : '#F1F5F9';
-    chart.options.plugins.tooltip.bodyColor = newTick;
-    chart.update();
-  });
-}
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
-calcMortgage();
-calcVehicle();
-calcPersonal();
-calcSavings();
 </script>
 </body>
 </html>
