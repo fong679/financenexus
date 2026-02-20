@@ -3,8 +3,8 @@
 //  1. Go to supabase.com → your project → Settings → API
 //  2. Copy "Project URL" and "anon public" key and paste below
 // ═══════════════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_ANON = 'YOUR_ANON_KEY_HERE';
+const SUPABASE_URL  = 'https://sqmpedbzaodjreflnqtk.supabase.co';
+const SUPABASE_ANON = 'QiOjE3NzE1MjQ0ODcsImV4cCI6MjA4NzEwMDQ4N30.qyUCwrgKEbO4kkgzR6wa_uFioxFu7CnlmsvsOOqyRBQ';
 
 // ═══════════════════════════════════════════════════════════════
 //  SUPABASE SQL — Run this once in your Supabase SQL Editor:
