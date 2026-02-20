@@ -4,7 +4,7 @@
 //  2. Copy "Project URL" and "anon public" key and paste below
 // ═══════════════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://sqmpedbzaodjreflnqtk.supabase.co';
-const SUPABASE_ANON = 'QiOjE3NzE1MjQ0ODcsImV4cCI6MjA4NzEwMDQ4N30.qyUCwrgKEbO4kkgzR6wa_uFioxFu7CnlmsvsOOqyRBQ';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxbXBlZGJ6YW9kanJlZmxucXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQ0ODcsImV4cCI6MjA4NzEwMDQ4N30.qyUCwrgKEbO4kkgzR6wa_uFioxFu7CnlmsvsOOqyRBQ';
 
 // ═══════════════════════════════════════════════════════════════
 //  SUPABASE SQL — Run this once in your Supabase SQL Editor:
