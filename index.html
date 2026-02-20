@@ -55,10 +55,60 @@ body{background:var(--slate);color:var(--text);font-family:'DM Sans',sans-serif;
 .icon-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface-high);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:all 0.2s;}
 .icon-btn:hover{border-color:var(--primary);}
 .live-badge{padding:5px 13px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(16,185,129,0.15);color:var(--emerald-light);border:1px solid rgba(16,185,129,0.3);letter-spacing:0.05em;}
-.user-chip{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;background:var(--surface-high);border:1px solid var(--border);border-radius:99px;cursor:pointer;transition:all 0.2s;}
-.user-chip:hover{border-color:var(--danger);}
-.user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;}
-.user-name{font-size:13px;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* PROFILE DROPDOWN */
+.profile-wrap{position:relative;}
+.user-chip{display:flex;align-items:center;gap:9px;padding:5px 13px 5px 5px;background:var(--surface-high);border:1px solid var(--border);border-radius:99px;cursor:pointer;transition:all 0.2s;user-select:none;}
+.user-chip:hover{border-color:var(--primary-light);background:var(--surface);}
+.user-chip.open{border-color:var(--primary);background:var(--surface);}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;}
+.user-info{display:flex;flex-direction:column;}
+.user-name{font-size:13px;font-weight:700;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2;}
+.user-email-small{font-size:10px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2;}
+.user-chevron{font-size:10px;color:var(--muted);transition:transform 0.2s;margin-left:2px;}
+.user-chip.open .user-chevron{transform:rotate(180deg);}
+
+.profile-dropdown{position:absolute;top:calc(100% + 10px);right:0;width:240px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:200;overflow:hidden;display:none;animation:dropIn 0.18s ease;}
+.profile-dropdown.open{display:block;}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+
+.profile-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.profile-header-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;flex-shrink:0;}
+.profile-header-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.3;}
+.profile-header-email{font-size:11px;color:var(--muted);margin-top:1px;word-break:break-all;}
+
+.profile-menu{padding:6px;}
+.profile-menu-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer;border:none;width:100%;background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;text-align:left;transition:all 0.15s;}
+.profile-menu-item:hover{background:var(--surface-high);}
+.profile-menu-item.danger{color:var(--danger);}
+.profile-menu-item.danger:hover{background:rgba(239,68,68,0.1);}
+.profile-menu-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.profile-menu-icon.blue{background:rgba(79,70,229,0.15);}
+.profile-menu-icon.red{background:rgba(239,68,68,0.12);}
+.profile-menu-divider{height:1px;background:var(--border);margin:4px 8px;}
+.profile-menu-label{display:flex;flex-direction:column;}
+.profile-menu-desc{font-size:11px;color:var(--muted);font-weight:400;margin-top:1px;}
+
+/* Change Password Modal */
+.cpw-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;}
+.cpw-modal.open{display:flex;}
+.cpw-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;max-width:400px;width:calc(100% - 40px);box-shadow:0 25px 60px rgba(0,0,0,0.4);}
+.cpw-title{font-size:18px;font-weight:700;margin-bottom:4px;}
+.cpw-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+.cpw-field{margin-bottom:16px;}
+.cpw-label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px;}
+.cpw-input{width:100%;background:var(--input-bg);border:1px solid var(--border);color:var(--input-color);border-radius:9px;padding:11px 14px;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border 0.2s;}
+.cpw-input:focus{border-color:var(--primary-light);}
+.cpw-msg{padding:10px 13px;border-radius:8px;font-size:13px;margin-top:12px;display:none;}
+.cpw-msg.success{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--emerald-light);}
+.cpw-msg.error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;}
+.cpw-actions{display:flex;gap:10px;margin-top:18px;}
+.cpw-btn{flex:1;padding:11px;border-radius:9px;border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.cpw-btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;}
+.cpw-btn.primary:hover{opacity:0.9;}
+.cpw-btn.primary:disabled{opacity:0.5;cursor:not-allowed;}
+.cpw-btn.cancel{background:transparent;border:1px solid var(--border);color:var(--text);}
+.cpw-btn.cancel:hover{border-color:var(--primary);}
 
 /* APP LAYOUT */
 #app-screen{display:none;}
@@ -281,10 +331,50 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
     <div class="topbar-right">
       <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
       <div class="live-badge">LIVE CALC</div>
-      <div class="user-chip" onclick="doSignOut()" title="Sign out">
-        <div class="user-avatar" id="user-avatar">?</div>
-        <span class="user-name" id="user-name-display">User</span>
-        <span style="font-size:11px;color:var(--muted);margin-left:1px">· out</span>
+
+      <!-- Profile Dropdown -->
+      <div class="profile-wrap" id="profile-wrap">
+        <div class="user-chip" id="user-chip" onclick="toggleProfileMenu()">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div class="user-info">
+            <div class="user-name" id="user-name-display">User</div>
+            <div class="user-email-small" id="user-email-display">—</div>
+          </div>
+          <span class="user-chevron">▼</span>
+        </div>
+        <div class="profile-dropdown" id="profile-dropdown">
+          <div class="profile-header">
+            <div class="profile-header-avatar" id="drop-avatar">?</div>
+            <div>
+              <div class="profile-header-name" id="drop-name">User</div>
+              <div class="profile-header-email" id="drop-email">—</div>
+            </div>
+          </div>
+          <div class="profile-menu">
+            <button class="profile-menu-item" onclick="openChangePassword()">
+              <div class="profile-menu-icon blue">🔑</div>
+              <div class="profile-menu-label">
+                <span>Change Password</span>
+                <span class="profile-menu-desc">Update your login password</span>
+              </div>
+            </button>
+            <button class="profile-menu-item" onclick="switchTab('saved', document.querySelectorAll('.nav-item')[4]);closeProfileMenu()">
+              <div class="profile-menu-icon blue">💾</div>
+              <div class="profile-menu-label">
+                <span>My Saved Calculations</span>
+                <span class="profile-menu-desc">View all saved scenarios</span>
+              </div>
+            </button>
+            <div class="profile-menu-divider"></div>
+            <button class="profile-menu-item danger" onclick="doSignOut()">
+              <div class="profile-menu-icon red">🚪</div>
+              <div class="profile-menu-label">
+                <span>Sign Out</span>
+                <span class="profile-menu-desc">End your current session</span>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -470,6 +560,21 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
   </div>
 </div>
 
+<!-- Change Password Modal -->
+<div class="cpw-modal" id="cpw-modal">
+  <div class="cpw-card">
+    <div class="cpw-title">🔑 Change Password</div>
+    <div class="cpw-sub">Enter your new password below. You'll stay logged in after changing.</div>
+    <div class="cpw-field"><label class="cpw-label">New Password <span style="text-transform:none;font-weight:400">(min. 8 chars)</span></label><input class="cpw-input" id="cpw-new" type="password" placeholder="New password"/></div>
+    <div class="cpw-field"><label class="cpw-label">Confirm New Password</label><input class="cpw-input" id="cpw-confirm" type="password" placeholder="Repeat new password" onkeydown="if(event.key==='Enter')submitChangePassword()"/></div>
+    <div class="cpw-msg" id="cpw-msg"></div>
+    <div class="cpw-actions">
+      <button class="cpw-btn cancel" onclick="closeChangePassword()">Cancel</button>
+      <button class="cpw-btn primary" id="cpw-btn" onclick="submitChangePassword()">Update Password</button>
+    </div>
+  </div>
+</div>
+
 <!-- Share Modal -->
 <div class="modal-overlay" id="share-modal">
   <div class="modal">
@@ -488,8 +593,8 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
 //  1. Go to supabase.com → your project → Settings → API
 //  2. Copy "Project URL" and "anon public" key and paste below
 // ═══════════════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://sqmpedbzaodjreflnqtk.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxbXBlZGJ6YW9kanJlZmxucXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQ0ODcsImV4cCI6MjA4NzEwMDQ4N30.qyUCwrgKEbO4kkgzR6wa_uFioxFu7CnlmsvsOOqyRBQ';
+const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+const SUPABASE_ANON = 'YOUR_ANON_KEY_HERE';
 
 // ═══════════════════════════════════════════════════════════════
 //  SUPABASE SQL — Run this once in your Supabase SQL Editor:
@@ -549,19 +654,68 @@ async function doReset(){
   showMsg(G('login-msg'),'success','Password reset email sent!');
 }
 async function doSignOut(){
+  closeProfileMenu();
   await sb.auth.signOut(); currentUser=null;
   G('app-screen').style.display='none'; G('auth-screen').style.display='flex';
-  toast('Signed out.');
+  toast('Signed out successfully.');
 }
 function onLogin(user){
   currentUser=user;
   const name=user.user_metadata?.full_name||user.email.split('@')[0];
+  const email=user.email||'';
+  const initial=name.charAt(0).toUpperCase();
+  // Topbar chip
   G('user-name-display').textContent=name;
-  G('user-avatar').textContent=name.charAt(0).toUpperCase();
+  G('user-email-display').textContent=email;
+  G('user-avatar').textContent=initial;
+  // Dropdown header
+  G('drop-avatar').textContent=initial;
+  G('drop-name').textContent=name;
+  G('drop-email').textContent=email;
   G('auth-screen').style.display='none'; G('app-screen').style.display='block';
   loadSaved(); calcMortgage(); calcVehicle(); calcPersonal(); calcSavings();
 }
 function showMsg(el,type,text){el.className=`auth-msg ${type}`;el.textContent=text;el.style.display='block';}
+
+// ─── PROFILE DROPDOWN ─────────────────────────────────────────
+function toggleProfileMenu(){
+  const chip=G('user-chip'),drop=G('profile-dropdown');
+  const isOpen=drop.classList.contains('open');
+  if(isOpen){closeProfileMenu();}else{chip.classList.add('open');drop.classList.add('open');}
+}
+function closeProfileMenu(){G('user-chip').classList.remove('open');G('profile-dropdown').classList.remove('open');}
+
+// Close when clicking outside
+document.addEventListener('click',e=>{
+  const wrap=G('profile-wrap');
+  if(wrap&&!wrap.contains(e.target))closeProfileMenu();
+});
+
+// ─── CHANGE PASSWORD ──────────────────────────────────────────
+function openChangePassword(){
+  closeProfileMenu();
+  G('cpw-new').value=''; G('cpw-confirm').value='';
+  G('cpw-msg').style.display='none';
+  G('cpw-btn').disabled=false; G('cpw-btn').textContent='Update Password';
+  G('cpw-modal').classList.add('open');
+  setTimeout(()=>G('cpw-new').focus(),100);
+}
+function closeChangePassword(){G('cpw-modal').classList.remove('open');}
+async function submitChangePassword(){
+  const np=G('cpw-new').value, cf=G('cpw-confirm').value;
+  const msg=G('cpw-msg'), btn=G('cpw-btn');
+  msg.style.display='none';
+  if(!np||!cf){showCpwMsg('error','Please fill in both fields.');return;}
+  if(np.length<8){showCpwMsg('error','Password must be at least 8 characters.');return;}
+  if(np!==cf){showCpwMsg('error','Passwords do not match.');return;}
+  btn.disabled=true; btn.textContent='Updating…';
+  const{error}=await sb.auth.updateUser({password:np});
+  btn.disabled=false; btn.textContent='Update Password';
+  if(error){showCpwMsg('error',error.message);return;}
+  showCpwMsg('success','✅ Password updated successfully!');
+  setTimeout(()=>closeChangePassword(),2000);
+}
+function showCpwMsg(type,text){const m=G('cpw-msg');m.className=`cpw-msg ${type}`;m.textContent=text;m.style.display='block';}
 
 // Session restore + share link on load
 (async()=>{
