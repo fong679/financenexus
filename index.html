@@ -265,6 +265,36 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
 .calc-page{display:none;animation:fadeIn 0.25s ease;}.calc-page.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
+/* RATES PAGE */
+.rates-page-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:8px;}
+.rates-bank-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;text-decoration:none;display:block;transition:all 0.2s;}
+.rates-bank-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
+.rates-bank-header{display:flex;align-items:center;gap:11px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.rates-bank-logo{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white;flex-shrink:0;letter-spacing:0.02em;}
+.rates-bank-logo.anz{background:linear-gradient(135deg,#005f9e,#0085c8);}
+.rates-bank-logo.westpac{background:linear-gradient(135deg,#c7001a,#e8001e);}
+.rates-bank-logo.bsp{background:linear-gradient(135deg,#004a8f,#0066cc);}
+.rates-bank-logo.hfc{background:linear-gradient(135deg,#006644,#009966);}
+.rates-bank-logo.fdb{background:linear-gradient(135deg,#7c3aed,#a855f7);}
+.rates-bank-logo.mf{background:linear-gradient(135deg,#b45309,#d97706);}
+.rates-bank-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.2;}
+.rates-bank-updated{font-size:10px;color:var(--muted);margin-top:2px;}
+.rates-category-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin:12px 0 6px;padding-top:8px;border-top:1px solid rgba(51,65,85,0.2);}
+.rates-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(51,65,85,0.1);}
+.rates-row:last-of-type{border-bottom:none;}
+.rates-row span:first-child{font-size:12px;color:var(--muted);}
+.rates-val{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--emerald-light);}
+.rates-val.rates-high{color:#FCA5A5;}
+.rates-val.rates-low{color:var(--emerald-light);}
+.rates-val.rates-contact{color:var(--muted);font-size:11px;}
+.rates-bank-link{font-size:11px;color:var(--primary-light);margin-top:12px;display:block;padding-top:10px;border-top:1px solid var(--border);}
+.rates-news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.rates-news-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-decoration:none;display:block;transition:all 0.2s;}
+.rates-news-card:hover{border-color:var(--accent);transform:translateY(-1px);}
+.rates-news-headline{font-size:13px;font-weight:600;color:var(--text);line-height:1.5;margin:6px 0 6px;}
+@media(max-width:1023px){.rates-page-grid{grid-template-columns:repeat(2,1fr);}.rates-news-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.rates-page-grid{grid-template-columns:1fr;}.rates-news-grid{grid-template-columns:1fr;}}
+
 /* EMAIL VERIFIED POPUP */
 .email-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
 .email-popup-overlay.open{display:flex;animation:fadeIn 0.25s ease;}
@@ -467,7 +497,7 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
     <div class="email-popup-top">
       <span class="email-popup-emoji">📬</span>
       <div class="email-popup-title">Verify Your Email</div>
-      <div class="email-popup-email" id="popup-email-display">you@example.com</div>
+      <div class="email-popup-email" id="popup-email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8ff6e0facfeaf7eee2ffe3eaa1ece0e2">[email&#160;protected]</a></div>
       <div class="email-popup-desc">We've sent a verification link to your email address. Please check your inbox and follow the steps below.</div>
     </div>
     <div class="email-popup-bottom">
@@ -559,6 +589,7 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
       <div class="nav-divider"></div>
       <button class="nav-item" onclick="switchTab('saved',this)"><div class="nav-icon">💾</div><div><div class="nav-label">My Saved</div><div class="nav-desc">Calculations</div></div></button>
       <button class="nav-item" onclick="switchTab('compare',this)"><div class="nav-icon">⚖️</div><div><div class="nav-label">Compare</div><div class="nav-desc">Side by Side</div></div></button>
+      <button class="nav-item" onclick="switchTab('rates',this)"><div class="nav-icon">🏦</div><div><div class="nav-label">Rates &amp; News</div><div class="nav-desc">Fiji Bank Rates</div></div></button>
     </nav>
 
     <!-- Main Content -->
@@ -702,6 +733,113 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
         <div id="compare-output"><div class="compare-empty">Select two saved calculations above and click Compare.</div></div>
       </div>
 
+      <!-- RATES & NEWS PAGE -->
+      <div id="page-rates" class="calc-page">
+        <div class="page-header"><span class="page-header-icon">🏦</span><div><div class="page-title">Fiji Bank Rates & News</div><div class="page-sub">Current lending rates from major Fiji banks — updated 2025/2026</div></div></div>
+
+        <!-- RBF Rate Banner -->
+        <div style="background:linear-gradient(135deg,rgba(79,70,229,0.15),rgba(16,185,129,0.1));border:1px solid rgba(79,70,229,0.25);border-radius:16px;padding:20px 24px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-bottom:4px">🏦 Reserve Bank of Fiji — Base Lending Rate</div>
+            <div style="font-size:38px;font-weight:800;font-family:'DM Mono',monospace;color:var(--primary-light);letter-spacing:-0.02em">1.67%</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:2px">p.a. — Q1 2025</div>
+          </div>
+          <div style="font-size:13px;color:var(--muted);max-width:260px;line-height:1.6">The RBF base rate influences all lending rates in Fiji. Lower base rate = cheaper loans across banks.</div>
+        </div>
+
+        <!-- Bank Rate Cards Grid -->
+        <div class="section-title">🏛️ Local Bank Lending Rates</div>
+        <div class="rates-page-grid">
+
+          <a class="rates-bank-card" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank">
+            <div class="rates-bank-header"><div class="rates-bank-logo anz">ANZ</div><div><div class="rates-bank-name">ANZ Fiji</div><div class="rates-bank-updated">Updated Dec 2025</div></div><span class="bank-badge">CURRENT</span></div>
+            <div class="rates-category-label">🏠 Home Loans</div>
+            <div class="rates-row"><span>Variable Rate</span><span class="rates-val">6.49%</span></div>
+            <div class="rates-row"><span>1yr Fixed</span><span class="rates-val">3.95%</span></div>
+            <div class="rates-row"><span>2yr Fixed</span><span class="rates-val">4.95%</span></div>
+            <div class="rates-category-label">🚗 Vehicle Loans</div>
+            <div class="rates-row"><span>Car Loan</span><span class="rates-val">8.45%</span></div>
+            <div class="rates-category-label">💳 Personal Loans</div>
+            <div class="rates-row"><span>Secured</span><span class="rates-val">10.50%</span></div>
+            <div class="rates-row"><span>Unsecured</span><span class="rates-val rates-high">16.50%</span></div>
+            <div class="rates-bank-link">Visit anz.com/fiji →</div>
+          </a>
+
+          <a class="rates-bank-card" href="https://www.westpac.com.fj/" target="_blank">
+            <div class="rates-bank-header"><div class="rates-bank-logo westpac">WBC</div><div><div class="rates-bank-name">Westpac Fiji</div><div class="rates-bank-updated">Updated Jan 2026</div></div><span class="bank-badge">CURRENT</span></div>
+            <div class="rates-category-label">🏠 Home Loans</div>
+            <div class="rates-row"><span>Variable Rate</span><span class="rates-val">7.49%</span></div>
+            <div class="rates-row"><span>1yr Fixed</span><span class="rates-val">4.75%</span></div>
+            <div class="rates-row"><span>2yr Fixed</span><span class="rates-val">5.45%</span></div>
+            <div class="rates-category-label">🚗 Vehicle Loans</div>
+            <div class="rates-row"><span>1yr Fixed</span><span class="rates-val">4.75%</span></div>
+            <div class="rates-row"><span>Variable</span><span class="rates-val">6.49%</span></div>
+            <div class="rates-category-label">💳 Personal Loans</div>
+            <div class="rates-row"><span>Secured</span><span class="rates-val">10.45%</span></div>
+            <div class="rates-row"><span>Unsecured</span><span class="rates-val rates-high">16.50%</span></div>
+            <div class="rates-bank-link">Visit westpac.com.fj →</div>
+          </a>
+
+          <a class="rates-bank-card" href="https://www.bsp.com.fj/help/indicated-lending-rates/" target="_blank">
+            <div class="rates-bank-header"><div class="rates-bank-logo bsp">BSP</div><div><div class="rates-bank-name">BSP Fiji</div><div class="rates-bank-updated">Updated 2025</div></div><span class="bank-badge">CURRENT</span></div>
+            <div class="rates-category-label">🏠 Home Loans</div>
+            <div class="rates-row"><span>1yr Fixed</span><span class="rates-val">4.10%</span></div>
+            <div class="rates-row"><span>2yr Fixed</span><span class="rates-val">4.90%</span></div>
+            <div class="rates-category-label">🚗 Vehicle Loans</div>
+            <div class="rates-row"><span>Motor Vehicle</span><span class="rates-val rates-contact">Contact BSP</span></div>
+            <div class="rates-category-label">💳 Personal Loans</div>
+            <div class="rates-row"><span>Personal Loan</span><span class="rates-val rates-contact">Contact BSP</span></div>
+            <div class="rates-bank-link">Visit bsp.com.fj →</div>
+          </a>
+
+          <a class="rates-bank-card" href="https://www.hfc.com.fj/" target="_blank">
+            <div class="rates-bank-header"><div class="rates-bank-logo hfc">HFC</div><div><div class="rates-bank-name">HFC Bank</div><div class="rates-bank-updated">Updated 2025</div></div></div>
+            <div class="rates-category-label">🏠 Home Loans</div>
+            <div class="rates-row"><span>Dream Home Package</span><span class="rates-val rates-contact">Competitive</span></div>
+            <div class="rates-category-label">🚗 Vehicle Loans</div>
+            <div class="rates-row"><span>Motor Vehicle</span><span class="rates-val rates-contact">Contact HFC</span></div>
+            <div class="rates-category-label">💳 Personal Loans</div>
+            <div class="rates-row"><span>Personal Loan</span><span class="rates-val rates-contact">Contact HFC</span></div>
+            <div class="rates-bank-link">Visit hfc.com.fj →</div>
+          </a>
+
+          <a class="rates-bank-card" href="https://www.fdb.com.fj/" target="_blank">
+            <div class="rates-bank-header"><div class="rates-bank-logo fdb">FDB</div><div><div class="rates-bank-name">Fiji Development Bank</div><div class="rates-bank-updated">Updated 2025</div></div></div>
+            <div class="rates-category-label">🏠 Home Loans</div>
+            <div class="rates-row"><span>Choice Home Loan</span><span class="rates-val rates-low">from 3.99%</span></div>
+            <div class="rates-row"><span>No internal fees</span><span class="rates-val rates-low">First 6 months</span></div>
+            <div class="rates-category-label">👤 Special Focus</div>
+            <div class="rates-row"><span>Youth / Women</span><span class="rates-val rates-low">✓ Priority</span></div>
+            <div class="rates-row"><span>Rural Communities</span><span class="rates-val rates-low">✓ Priority</span></div>
+            <div class="rates-bank-link">Visit fdb.com.fj →</div>
+          </a>
+
+          <a class="rates-bank-card" href="https://www.merchantfinancefiji.com/" target="_blank">
+            <div class="rates-bank-header"><div class="rates-bank-logo mf">MF</div><div><div class="rates-bank-name">Merchant Finance</div><div class="rates-bank-updated">Updated 2025</div></div></div>
+            <div class="rates-category-label">🏠 Home Loans</div>
+            <div class="rates-row"><span>Zero Deposit Home Loan</span><span class="rates-val rates-low">Unique</span></div>
+            <div class="rates-row"><span>Construction Finance</span><span class="rates-val">Up to 90%</span></div>
+            <div class="rates-category-label">💳 Personal Loans</div>
+            <div class="rates-row"><span>Personal Finance</span><span class="rates-val rates-contact">Contact MF</span></div>
+            <div class="rates-bank-link">Visit merchantfinancefiji.com →</div>
+          </a>
+
+        </div>
+
+        <!-- News Section -->
+        <div class="section-title" style="margin-top:28px">📰 Fiji Loan News</div>
+        <div class="rates-news-grid">
+          <a class="rates-news-card" href="https://www.fbcnews.com.fj/" target="_blank"><span class="news-tag tag-mortgage">Mortgage</span><div class="rates-news-headline">FDB launches Choice Home Loan from 3.99% — targets youth, women &amp; rural communities</div><div class="news-meta"><span class="news-source">FBC News</span> · 2025</div></a>
+          <a class="rates-news-card" href="https://www.fijivillage.com/" target="_blank"><span class="news-tag tag-mortgage">Mortgage</span><div class="rates-news-headline">Merchant Finance launches zero-deposit home loan — first of its kind in Fiji</div><div class="news-meta"><span class="news-source">Fijivillage</span> · 2025</div></a>
+          <a class="rates-news-card" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank"><span class="news-tag tag-vehicle">Vehicle</span><div class="rates-news-headline">ANZ Fiji car loan at 8.45% p.a. — among the most competitive vehicle rates in Fiji</div><div class="news-meta"><span class="news-source">ANZ Fiji</span> · Dec 2025</div></a>
+          <a class="rates-news-card" href="https://www.westpac.com.fj/" target="_blank"><span class="news-tag tag-vehicle">Vehicle</span><div class="rates-news-headline">Westpac vehicle 1-yr fixed drops to 4.75% — updated Jan 2026 rate sheet</div><div class="news-meta"><span class="news-source">Westpac Fiji</span> · Jan 2026</div></a>
+          <a class="rates-news-card" href="https://www.anz.com/fiji/en/interest-rates/" target="_blank"><span class="news-tag tag-personal">Personal</span><div class="rates-news-headline">ANZ personal: secured 10.50%, unsecured 16.50% — current from Dec 2025</div><div class="news-meta"><span class="news-source">ANZ Fiji</span> · Dec 2025</div></a>
+          <a class="rates-news-card" href="https://www.rbf.gov.fj/" target="_blank"><span class="news-tag tag-mortgage">Policy</span><div class="rates-news-headline">RBF holds base lending rate at 1.67% for Q1 2025 — aims to stimulate economic growth</div><div class="news-meta"><span class="news-source">Reserve Bank of Fiji</span> · Q1 2025</div></a>
+        </div>
+
+        <div class="footer-note">⚠️ Rates are indicative only and subject to change. Always verify directly with each bank before making financial decisions. All amounts in FJD.</div>
+      </div>
+
     </main>
 
     <!-- News Sidebar -->
@@ -757,7 +895,7 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
 
 <div id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ═══════════════════════════════════════════════════════════════
 //  ⚙️  SUPABASE CONFIG — Replace these two values
 //  1. Go to supabase.com → your project → Settings → API
@@ -1176,8 +1314,4 @@ function calcSavings(){
   G('s-out-final').textContent=fmt(fb);G('s-out-contrib').textContent=fmt(fc);G('s-out-growth').textContent=fmt(Math.max(0,gr));
   G('s-analysis').innerHTML=`Starting with <strong>${fmt(ini)}</strong> + <strong>${fmt(mo)}/mo</strong> for ${years} years at ${rate}% → portfolio could reach <strong>${fmt(fb)}</strong>. That's <strong>${fmt(gr)}</strong> in pure earnings. Your money multiplied <strong>${(fb/Math.max(1,fc)).toFixed(1)}x</strong>.`;
   G('s-milestones').innerHTML=[5,10,20].filter(y=>y<=years).map(y=>`<div class="milestone"><div class="milestone-year">Year ${y}</div><div class="milestone-val">${fmt(bD[y]||0)}</div><div class="milestone-sub">+${fmt((bD[y]||0)-(cD[y]||0))} growth</div></div>`).join('');
-  makeChart('chart-savings',{type:'line',data:{labels,datasets:[{label:'Portfolio Value',data:bD,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:0.4,pointRadius:1,borderWidth:2.5},{label:'Contributions',data:cD,borderColor:'#4F46E5',backgroundColor:'rgba(79,70,229,0.07)',fill:true,tension:0.4,pointRadius:1,borderWidth:2,borderDash:[4,3]}]},options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:n=>fmtK(n)}}}}});
-}
-</script>
-</body>
-</html>
+  makeChart('chart-savings',{type:'line',data:{labels,datasets:[{label:'Portfolio Value',data:bD,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:0.4,pointRadius:1,borderWidth:2.5},{label:'Contributions',data:cD,borderColor:'#4F46E5',backgroundColor:'rgba(79,70,229,0.07)',fill:
