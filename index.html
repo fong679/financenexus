@@ -593,8 +593,8 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
 //  1. Go to supabase.com → your project → Settings → API
 //  2. Copy "Project URL" and "anon public" key and paste below
 // ═══════════════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://sqmpedbzaodjreflnqtk.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxbXBlZGJ6YW9kanJlZmxucXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQ0ODcsImV4cCI6MjA4NzEwMDQ4N30.qyUCwrgKEbO4kkgzR6wa_uFioxFu7CnlmsvsOOqyRBQ';
+const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
+const SUPABASE_ANON = 'YOUR_ANON_KEY_HERE';
 
 // ═══════════════════════════════════════════════════════════════
 //  SUPABASE SQL — Run this once in your Supabase SQL Editor:
@@ -640,7 +640,7 @@ async function doRegister(){
   if(pass.length<8){showMsg(msg,'error','Password must be at least 8 characters.');return;}
   if(pass!==conf){showMsg(msg,'error','Passwords do not match.');return;}
   btn.disabled=true; btn.textContent='Creating account…';
-  const{error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+  const{error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name},emailRedirectTo:'https://fong679.github.io/financenexus/'}});
   btn.disabled=false; btn.textContent='Create Account & Verify Email →';
   if(error){showMsg(msg,'error',error.message);return;}
   G('verify-box').style.display='block';
@@ -649,9 +649,11 @@ async function doRegister(){
 async function doReset(){
   const email=G('login-email').value.trim();
   if(!email){showMsg(G('login-msg'),'error','Enter your email address first.');return;}
-  const{error}=await sb.auth.resetPasswordForEmail(email);
+  const{error}=await sb.auth.resetPasswordForEmail(email,{
+    redirectTo:'https://fong679.github.io/financenexus/'
+  });
   if(error){showMsg(G('login-msg'),'error',error.message);return;}
-  showMsg(G('login-msg'),'success','Password reset email sent!');
+  showMsg(G('login-msg'),'success','Password reset email sent! Check your inbox.');
 }
 async function doSignOut(){
   closeProfileMenu();
@@ -718,9 +720,33 @@ async function submitChangePassword(){
 function showCpwMsg(type,text){const m=G('cpw-msg');m.className=`cpw-msg ${type}`;m.textContent=text;m.style.display='block';}
 
 // Session restore + share link on load
+// ─── SESSION & EMAIL CONFIRMATION HANDLER ────────────────────
+// Supabase puts the token in the URL hash after email confirmation.
+// onAuthStateChange fires automatically when the hash is detected,
+// so we don't need to parse it manually.
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    // Clean the token hash from the URL without triggering a reload
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    if (!currentUser) onLogin(session.user);
+  }
+  if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    G('app-screen').style.display = 'none';
+    G('auth-screen').style.display = 'flex';
+  }
+  if (event === 'PASSWORD_RECOVERY') {
+    // Show change password immediately if arriving from reset email
+    setTimeout(() => openChangePassword(), 500);
+  }
+});
+
+// Restore existing session on page load
 (async()=>{
   const{data}=await sb.auth.getSession();
-  if(data.session) onLogin(data.session.user);
+  if(data.session && !currentUser) onLogin(data.session.user);
   const p=new URLSearchParams(window.location.search);
   if(p.get('share')) loadSharedCalc(p.get('share'));
 })();
