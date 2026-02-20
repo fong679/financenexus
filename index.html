@@ -1313,5 +1313,8 @@ function calcSavings(){
   const fb=bD[bD.length-1],fc=cD[cD.length-1],gr=fb-fc;
   G('s-out-final').textContent=fmt(fb);G('s-out-contrib').textContent=fmt(fc);G('s-out-growth').textContent=fmt(Math.max(0,gr));
   G('s-analysis').innerHTML=`Starting with <strong>${fmt(ini)}</strong> + <strong>${fmt(mo)}/mo</strong> for ${years} years at ${rate}% → portfolio could reach <strong>${fmt(fb)}</strong>. That's <strong>${fmt(gr)}</strong> in pure earnings. Your money multiplied <strong>${(fb/Math.max(1,fc)).toFixed(1)}x</strong>.`;
-  G('s-milestones').innerHTML=[5,10,20].filter(y=>y<=years).map(y=>`<div class="milestone"><div class="milestone-year">Year ${y}</div><div class="milestone-val">${fmt(bD[y]||0)}</div><div class="milestone-sub">+${fmt((bD[y]||0)-(cD[y]||0))} growth</div></div>`).join('');
-  makeChart('chart-savings',{type:'line',data:{labels,datasets:[{label:'Portfolio Value',data:bD,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,0.1)',fill:true,tension:0.4,pointRadius:1,borderWidth:2.5},{label:'Contributions',data:cD,borderColor:'#4F46E5',backgroundColor:'rgba(79,70,229,0.07)',fill:
+  makeChart('chart-savings',{type:'line',data:{labels,datasets:[{label:'Portfolio Value',data:bD,borderColor:'#10B981',backgroundColor:'rgba(16,185,129,0.08)',fill:true,tension:0.4,pointRadius:2,borderWidth:2.5},{label:'Total Invested',data:cD,borderColor:'#818CF8',backgroundColor:'rgba(129,140,248,0.06)',fill:true,tension:0.4,pointRadius:2,borderWidth:2,borderDash:[5,3]}]},options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:n=>fmtK(n)}}}}});
+}
+</script>
+</body>
+</html>
