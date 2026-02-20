@@ -40,10 +40,6 @@ body{background:var(--slate);color:var(--text);font-family:'DM Sans',sans-serif;
 .auth-msg.error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;}
 .auth-divider{text-align:center;font-size:12px;color:var(--muted);margin:18px 0;}
 .auth-footer{text-align:center;font-size:12px;color:var(--muted);margin-top:20px;}
-.auth-verify-box{text-align:center;padding:18px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;margin-top:16px;display:none;}
-.auth-verify-icon{font-size:36px;margin-bottom:8px;}
-.auth-verify-title{font-size:16px;font-weight:700;color:var(--emerald-light);margin-bottom:6px;}
-.auth-verify-sub{font-size:13px;color:var(--muted);}
 
 /* TOPBAR */
 .topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;background:var(--topbar-bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
@@ -269,15 +265,164 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
 .calc-page{display:none;animation:fadeIn 0.25s ease;}.calc-page.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-/* RESPONSIVE */
-@media(max-width:1200px){.news-sidebar{display:none;}}
-@media(max-width:1024px){.calc-grid{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr 1fr;}}
-@media(max-width:768px){
-  .app-body{flex-direction:column;}
-  .sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:8px;border-right:none;border-bottom:1px solid var(--border);gap:6px;}
-  .nav-desc,.nav-divider{display:none;}.nav-item{padding:8px;width:auto;flex-shrink:0;}
-  .content{padding:14px;}.grid-2,.compare-grid{grid-template-columns:1fr;}
-  .topbar{padding:0 12px;height:56px;}.auth-card{padding:26px 20px;}
+/* EMAIL VERIFIED POPUP */
+.email-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+.email-popup-overlay.open{display:flex;animation:fadeIn 0.25s ease;}
+.email-popup{background:var(--surface);border:1px solid rgba(16,185,129,0.35);border-radius:24px;padding:0;max-width:420px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,0.5);overflow:hidden;text-align:center;}
+.email-popup-top{background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(79,70,229,0.1));padding:36px 32px 28px;border-bottom:1px solid var(--border);}
+.email-popup-emoji{font-size:56px;display:block;margin-bottom:14px;animation:bounce 0.6s ease;}
+@keyframes bounce{0%,100%{transform:translateY(0);}40%{transform:translateY(-12px);}70%{transform:translateY(-5px);}}
+.email-popup-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.02em;margin-bottom:6px;}
+.email-popup-email{font-size:13px;font-weight:600;color:var(--emerald-light);background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:99px;padding:4px 14px;display:inline-block;margin-bottom:10px;font-family:'DM Mono',monospace;}
+.email-popup-desc{font-size:14px;color:var(--muted);line-height:1.6;}
+.email-popup-bottom{padding:22px 32px 28px;}
+.email-popup-steps{text-align:left;margin-bottom:20px;}
+.email-popup-step{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid rgba(51,65,85,0.2);}
+.email-popup-step:last-child{border-bottom:none;}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--primary);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step-text{font-size:13px;color:var(--text);line-height:1.4;}
+.step-text small{color:var(--muted);font-size:11px;display:block;margin-top:2px;}
+.email-popup-btn{width:100%;padding:13px;border-radius:11px;border:none;cursor:pointer;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;box-shadow:0 4px 15px rgba(79,70,229,0.35);transition:all 0.2s;}
+.email-popup-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.45);}
+.email-popup-resend{margin-top:12px;font-size:12px;color:var(--muted);text-align:center;}
+.email-popup-resend a{color:var(--primary-light);cursor:pointer;text-decoration:none;}
+.email-popup-resend a:hover{text-decoration:underline;}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+
+/* Large desktop (1400px+) — wider sidebar */
+@media(min-width:1400px){
+  .sidebar{width:270px;}
+  .calc-grid{grid-template-columns:420px 1fr;}
+  .content{padding:32px;}
+}
+
+/* Standard desktop (1200px–1400px) — news sidebar hides */
+@media(max-width:1200px){
+  .news-sidebar{display:none;}
+}
+
+/* Tablet landscape (1024px–1199px) */
+@media(max-width:1199px){
+  .calc-grid{grid-template-columns:1fr;}
+  .sidebar{width:220px;}
+  .brand-sub{display:none;}
+}
+
+/* Tablet portrait (768px–1023px) */
+@media(max-width:1023px){
+  .calc-grid{grid-template-columns:1fr;}
+  .grid-3{grid-template-columns:1fr 1fr;}
+  .compare-grid{grid-template-columns:1fr 1fr;}
+  .sidebar{width:200px;}
+  .nav-desc{display:none;}
+  .content{padding:18px;}
+  .stat-card.accent .stat-value{font-size:26px;}
+  .live-badge{display:none;}
+}
+
+/* Mobile landscape / large phones (600px–767px) */
+@media(max-width:767px){
+  /* Auth */
+  #auth-screen{align-items:flex-start;padding-top:20px;}
+  .auth-card{margin:12px;padding:28px 20px;border-radius:16px;max-width:100%;}
+  .auth-logo-name{font-size:18px;}
+
+  /* Topbar */
+  .topbar{padding:0 12px;height:56px;}
+  .brand-name{font-size:15px;}
+  .brand-sub{display:none;}
+  .live-badge{display:none;}
+  .user-email-small{display:none;}
+  .icon-btn{width:34px;height:34px;font-size:15px;}
+
+  /* App layout — sidebar becomes bottom tab bar */
+  .app-body{flex-direction:column-reverse;}
+  .sidebar{
+    width:100%;flex-direction:row;overflow-x:auto;
+    padding:6px 8px;border-right:none;border-top:1px solid var(--border);
+    gap:4px;position:sticky;bottom:0;z-index:50;
+    background:var(--topbar-bg);backdrop-filter:blur(12px);
+    min-height:60px;align-items:center;
+  }
+  .nav-item{
+    flex-direction:column;align-items:center;justify-content:center;
+    padding:6px 10px;width:auto;flex-shrink:0;min-width:56px;
+    border-left:none;border-bottom:3px solid transparent;border-radius:8px;gap:3px;
+  }
+  .nav-item.active{border-left:none;border-bottom-color:var(--primary-light);}
+  .nav-icon{width:26px;height:26px;font-size:14px;background:transparent;}
+  .nav-item.active .nav-icon{background:transparent;}
+  .nav-label{font-size:10px;font-weight:600;line-height:1;}
+  .nav-desc,.nav-divider{display:none;}
+
+  /* Content */
+  .content{padding:14px;overflow-y:auto;}
+  .page-title{font-size:20px;}
+  .page-sub{font-size:12px;}
+  .page-header{margin-bottom:16px;gap:10px;}
+  .page-header-icon{font-size:22px;}
+
+  /* Calc grid — single column */
+  .calc-grid{grid-template-columns:1fr;gap:14px;}
+  .grid-2{grid-template-columns:1fr 1fr;gap:10px;}
+  .grid-3{grid-template-columns:1fr 1fr;gap:8px;}
+  .compare-grid{grid-template-columns:1fr;}
+
+  /* Panels */
+  .panel{padding:16px;}
+  .stat-card{padding:12px 14px;}
+  .stat-value{font-size:20px;}
+  .stat-card.accent .stat-value{font-size:24px;}
+
+  /* Inputs */
+  .input-number{width:100px;font-size:13px;}
+  .input-label{font-size:12px;}
+  .save-bar{flex-wrap:wrap;gap:8px;}
+  .save-bar input{min-width:0;flex:1;}
+
+  /* Save bar label hide on small */
+  .save-bar > span{display:none;}
+
+  /* Compare selects */
+  .compare-selector{flex-direction:column;}
+  select{width:100%;}
+
+  /* Saved card actions */
+  .saved-card-actions{gap:5px;}
+  .btn-sm{padding:5px 9px;font-size:11px;}
+
+  /* Profile dropdown — open upward on mobile */
+  .profile-dropdown{top:auto;bottom:calc(100% + 8px);right:0;}
+
+  /* Modals full-screen on mobile */
+  .modal,.cpw-card,.email-popup{max-width:100%;border-radius:16px;}
+  .email-popup-top{padding:26px 22px 20px;}
+  .email-popup-bottom{padding:18px 22px 22px;}
+  .email-popup-emoji{font-size:44px;}
+  .email-popup-title{font-size:19px;}
+
+  /* Footer note */
+  .footer-note{font-size:11px;padding:10px 13px;}
+}
+
+/* Small phones (below 480px) */
+@media(max-width:479px){
+  .auth-card{margin:8px;padding:22px 16px;}
+  .auth-logo-name{font-size:17px;}
+  .auth-tab{font-size:13px;padding:8px;}
+  .auth-btn{font-size:14px;padding:12px;}
+  .grid-2{grid-template-columns:1fr;}
+  .grid-3{grid-template-columns:1fr 1fr;}
+  .stat-card.accent .stat-value{font-size:22px;}
+  .topbar{height:52px;}
+  .user-name{max-width:80px;font-size:12px;}
+  .content{padding:10px;}
+  .panel{padding:13px;}
+  .page-title{font-size:18px;}
+  .input-number{width:88px;}
+  .nav-item{min-width:48px;padding:5px 7px;}
+  .nav-label{font-size:9px;}
 }
 </style>
 </head>
@@ -311,13 +456,38 @@ td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(51,65,85,0.22)
       <div class="auth-field"><label class="auth-label">Confirm Password</label><input class="auth-input" id="reg-confirm" type="password" placeholder="Repeat password" autocomplete="new-password"/></div>
       <button class="auth-btn" id="reg-btn" onclick="doRegister()">Create Account & Verify Email →</button>
       <div class="auth-msg" id="reg-msg"></div>
-      <div class="auth-verify-box" id="verify-box">
-        <div class="auth-verify-icon">📬</div>
-        <div class="auth-verify-title">Check Your Email!</div>
-        <div class="auth-verify-sub">A verification link has been sent.<br>Click it to activate your account, then sign in.</div>
-      </div>
     </div>
     <div class="auth-footer">By signing in you agree to our terms &amp; privacy policy.<br>Data stored securely via Supabase.</div>
+  </div>
+</div>
+
+<!-- EMAIL VERIFICATION POPUP -->
+<div class="email-popup-overlay" id="email-popup-overlay">
+  <div class="email-popup">
+    <div class="email-popup-top">
+      <span class="email-popup-emoji">📬</span>
+      <div class="email-popup-title">Verify Your Email</div>
+      <div class="email-popup-email" id="popup-email-display">you@example.com</div>
+      <div class="email-popup-desc">We've sent a verification link to your email address. Please check your inbox and follow the steps below.</div>
+    </div>
+    <div class="email-popup-bottom">
+      <div class="email-popup-steps">
+        <div class="email-popup-step">
+          <div class="step-num">1</div>
+          <div class="step-text">Open the email from <strong>Supabase Auth</strong><small>Subject: "Confirm your signup"</small></div>
+        </div>
+        <div class="email-popup-step">
+          <div class="step-num">2</div>
+          <div class="step-text">Click <strong>"Confirm your mail"</strong> in the email<small>This activates your account</small></div>
+        </div>
+        <div class="email-popup-step">
+          <div class="step-num">3</div>
+          <div class="step-text">Come back and <strong>Sign In</strong> with your password<small>You'll be logged in automatically</small></div>
+        </div>
+      </div>
+      <button class="email-popup-btn" onclick="closeEmailPopup()">Got it — I'll check my email ✓</button>
+      <div class="email-popup-resend">Didn't receive it? Check spam or <a onclick="resendVerification()">resend email</a></div>
+    </div>
   </div>
 </div>
 
@@ -643,8 +813,24 @@ async function doRegister(){
   const{error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name},emailRedirectTo:'https://fong679.github.io/financenexus/'}});
   btn.disabled=false; btn.textContent='Create Account & Verify Email →';
   if(error){showMsg(msg,'error',error.message);return;}
-  G('verify-box').style.display='block';
-  showMsg(msg,'success','Account created! Check your email to verify.');
+  // Show the beautiful popup instead of inline message
+  G('popup-email-display').textContent=email;
+  G('email-popup-overlay').classList.add('open');
+  // Clear the form
+  G('reg-name').value=''; G('reg-email').value=''; G('reg-password').value=''; G('reg-confirm').value='';
+  msg.style.display='none';
+}
+function closeEmailPopup(){
+  G('email-popup-overlay').classList.remove('open');
+  // Switch to sign in tab so user can log in after verifying
+  authTab('login');
+}
+async function resendVerification(){
+  const email=G('popup-email-display').textContent;
+  if(!email||email==='you@example.com')return;
+  const{error}=await sb.auth.resend({type:'signup',email,options:{emailRedirectTo:'https://fong679.github.io/financenexus/'}});
+  if(error){toast('Error: '+error.message,'error');return;}
+  toast('✅ Verification email resent!','success');
 }
 async function doReset(){
   const email=G('login-email').value.trim();
